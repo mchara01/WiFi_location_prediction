@@ -3,6 +3,33 @@ from numpy.lib.function_base import average
 from tree_node import tree_node
 
 class decision_tree:
+    def __init__(self):
+        """init of decision tree 
+        """
+        self.root_node = None
+        self.depth = None
+
+    def train(self,x_train,y_train):
+        """[summary]
+
+        Args:
+            x_train ([type]): [description]
+            y_train ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        self.root_node, self.depth = decision_tree.decision_tree_learning(x_train,y_train,0)
+        return self.root_node, self.depth
+
+    def predict(self,x_test):
+        """TODO method not done
+
+        Args:
+            x_test ([type]): [description]
+        """
+        return None
+
 
     def find_entropy(y_train):
         """Calculates the entropy of a given label set
@@ -16,7 +43,7 @@ class decision_tree:
         values_list = np.unique(y_train)
         sum_total = 0
         for value in values_list:
-            total = np.sum(y_train[value == y_train])
+            total = y_train[value == y_train].shape[0]
             probability = total / y_train.shape[0]
             log_value = np.log2(probability)
             sum_total -= (probability * log_value)
@@ -50,8 +77,7 @@ class decision_tree:
         best_feature_y_train_left = None
         best_feature_x_train_right = None
         best_feature_y_train_right = None
-        # print(x_train)
-        for current_feature in range(x_train.shape[1]-1):
+        for current_feature in range(x_train.shape[1]):
             current_best_gain  = None
             current_best_value = None
             best_x_train_left = None
@@ -59,15 +85,15 @@ class decision_tree:
             best_x_train_right = None
             best_y_train_right = None
             values = np.array(x_train[:, current_feature], copy=True)
-            print(values)
             values_sorted_idx = np.argsort(values)
             for current_elem_idx in range(x_train.shape[0] - 1):
                 elem_1_idx = values_sorted_idx[current_elem_idx]
                 elem_2_idx = values_sorted_idx[current_elem_idx+1]
 
                 split_value = float(values[elem_2_idx]+values[elem_1_idx]) / 2
-                left_split_idx = np.argwhere(values > split_value)
-                right_split_idx = np.argwhere(values <= split_value)
+                left_split_idx = np.argwhere(values > split_value).flatten()
+                right_split_idx = np.argwhere(values <= split_value).flatten()
+                assert(left_split_idx.shape[0] + right_split_idx.shape[0] == values.shape[0])
                 x_train_left = x_train[left_split_idx]
                 y_train_left = y_train[left_split_idx]
                 x_train_right = x_train[right_split_idx]
@@ -99,13 +125,10 @@ class decision_tree:
 
     def decision_tree_learning( x_train, y_train, depth):
         # if all samples from same labels then stop
-        if x_train is None:
-            return tree_node(None,None,False,None),depth
-
-        if x_train.shape[0] < 2:
-            return tree_node(None,None,True,x_train[0]),depth
-        first_label= x_train[0]
-        if np.sum(len(x_train[x_train == first_label])) == len(x_train):
+        if y_train.shape[0] < 2:
+            return tree_node(None,None,True,y_train[0]),depth
+        first_label= y_train[0]
+        if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
             return tree_node(None,None,False,first_label),depth
         # else 
         else:
@@ -113,8 +136,7 @@ class decision_tree:
             feature, split_value,\
                 x_train_left,y_train_left,\
                 x_train_right,y_train_right = decision_tree.find_split(x_train,y_train)
-            print(x_train_left.size)
-            print(x_train_left)
+    
             # create node with the split 
             node  = tree_node(feature,split_value,False, None)
             # find the left branch recursively

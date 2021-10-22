@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
 
 
-
-    print(x_train_clean)
-    clean_data_tree , clean_data_depth = decision_tree.decision_tree_learning(x_train_clean,y_train_clean,0)
-    # noise_data_tree , noise_data_depth = decision_tree.decision_tree_learning(x_train_noise,y_train_noise,0)
+    clean_decision_tree = decision_tree()
+    noise_decision_tree = decision_tree()
+    clean_data_tree , clean_data_depth = clean_decision_tree.train(x_train_clean,y_train_clean)
+    noise_data_tree , noise_data_depth = noise_decision_tree.train(x_train_noise,y_train_noise)
