@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
 from numpy.lib.function_base import average
 from tree_node import tree_node
 
@@ -168,3 +170,49 @@ class decision_tree:
             node.right, right_depth = decision_tree.decision_tree_learning(x_train_right,y_train_right,depth +1)
             # return node and max depth of the two branches 
             return node, max(left_depth,right_depth)
+
+    def plottree(self, node=None, x=0, y=0, width=100):
+        depth_dist = 20
+        tree_coords = []
+
+        # if starting the plot, node = root node
+        if node is None:
+            node = self.root_node
+
+        # if it's not a leaf node
+        if not node.leaf: 
+            label_node = str(node.attribute)+'>'+str(node.value)
+            print('plotted',x,y)
+
+            # x, y: parent coordinates; xl, yl: left node coordinates; xr, yr: right node coordinates
+            plt.text(x,y,label_node,horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'))
+            
+            xl = x - width
+            yl = y - depth_dist
+            xr = x + width
+            yr = y - depth_dist
+
+            # plot left side recursively
+            plt.plot([x, xl], [y, yl])
+            self.plottree(node.left, xl, yl,width*0.55)
+
+            # plot right side recursively
+            plt.plot([x, xr], [y, yr])
+            self.plottree (node.right, xr, yr,width*0.55)
+        
+        # if it's the leaf node, end of recursion.
+        if node.leaf:
+            label_node = 'leaf:'+str(node.label)
+            plt.text(x,y, label_node, horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'))
+            plt.plot(x,y)
+            print('plotted leaf node',x,y)
+        
+
+
+
+        
+
+        
+        
+
+
