@@ -125,11 +125,11 @@ class decision_tree:
 
     def decision_tree_learning( x_train, y_train, depth):
         # if all samples from same labels then stop
-        if y_train.shape[0] < 2:
-            return tree_node(None,None,True,y_train[0]),depth
+        # if y_train.shape[0] < 2:
+        #     return tree_node(None,None,True,y_train[0]),depth
         first_label= y_train[0]
         if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
-            return tree_node(None,None,False,first_label),depth
+            return tree_node(None,None,True,first_label),depth
         # else 
         else:
             # find split of the node
