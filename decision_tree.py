@@ -28,8 +28,31 @@ class decision_tree:
         Args:
             x_test ([type]): [description]
         """
-        return None
+        y_predict = np.zeros(len(x_test),) # initialise y_test that will store 
+        
+        for i,instance in enumerate(x_test):
 
+            # start at the root node
+            curr_node = self.root_node
+
+            # recursively enter the tree if it is not the leaf node
+            while not curr_node.leaf:
+                curr_attribute = curr_node.attribute
+                curr_value = curr_node.value
+
+                if instance[curr_attribute] > curr_value:
+                    curr_node = curr_node.left
+                else: 
+                    curr_node = curr_node.right
+            
+            # if leaf node reached, output the label of the leaf node
+            y_predict[i] = curr_node.label
+        
+        return y_predict
+
+    def evaluate (self, y_predict, y_test):
+        
+        return sum(y_predict==y_test)/len(y_test)
 
     def find_entropy(y_train):
         """Calculates the entropy of a given label set
