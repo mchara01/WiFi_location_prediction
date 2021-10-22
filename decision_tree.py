@@ -28,7 +28,7 @@ class decision_tree:
         Args:
             x_test ([type]): [description]
         """
-        y_predict = np.zeros(len(x_test),) # initialise y_test that will store 
+        y_predict = np.zeros((len(x_test),)) # initialise y_test that will store 
         
         for i,instance in enumerate(x_test):
 
@@ -47,7 +47,7 @@ class decision_tree:
             
             # if leaf node reached, output the label of the leaf node
             y_predict[i] = curr_node.label
-        
+
         return y_predict
 
     def evaluate (self, y_predict, y_test):
