@@ -42,20 +42,16 @@ def nested_k_fold_cross_validation(n_folds, n_instances):
     
 
     for k in range(n_folds):
-
-        
         inner_folds = []
         # pick k as test
         test_indices = split_indices[k]
        
         # loop through inner list to find train and validation set
-        for j in range(n_folds):
-            if k == j:
-                continue
-            else:
-                validation_indices = split_indices[j]
-                train_indices = np.hstack(split_indices[:k] + split_indices[k+1:])
-                inner_folds.append([train_indices, test_indices, validation_indices])
+        non_test_split_indices = split_indices.delete(test_indices, k)
+        for j in range(n_folds - 1):
+            validation_indices = non_test_split_indices[j]
+            train_indices = np.hstack(non_test_split_indices[:j] + non_test_split_indices[j+1:])
+            inner_folds.append([train_indices, test_indices, validation_indices])
         folds.append(inner_folds)
 
     return folds
