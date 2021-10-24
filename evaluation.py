@@ -73,6 +73,25 @@ def visualize_k_fold():
         k+=1
     return None
 
+def evaluate(test_set, trained_tree):
+    """ Compute the accuracy given the ground truth and predictions
+
+    Args:
+        test_set (numpy.ndarray): test dataset
+        trained_tree (object node): trained decision tree
+
+    Returns:
+        float : the accuracy
+    """
+
+    X_test, y_test = np.split(test_set,[-1],axis=1)
+    y_prediction = trained_tree.predict(X_test)
+    assert len(y_test) == len(y_prediction)  
+    
+    try:
+        return np.sum(y_test == y_prediction) / len(y_test)
+    except ZeroDivisionError:
+        return 0.
 
 
   
