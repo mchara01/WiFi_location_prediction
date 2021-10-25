@@ -51,8 +51,100 @@ def read_full_dt(file_path):
 #             inner_list.append(acc)
 #         acc_list.append(inner_list)
 #     return acc_list
+def cross_Validation(x,y,fold):
+    indices_list = k_fold_indices(fold, len(x))
+    result_dt = []
+    for k in indices_list:
+        test_indx = k[0]
+        x_test = x[test_indx]
+        y_test = y[test_indx]
 
-def new_cross_Validation(x,y,outer_fold, inner_fold):
+        train_indices = k[1]
+        x_train = x[train_indices]
+        y_train = y[train_indices]
+
+
+        current_decision_tree = decision_tree()
+        data_tree , data_depth = current_decision_tree.train(x_train,y_train)
+
+
+        y_predicted = current_decision_tree.predict(x_test)
+
+        final_cm = confusion_matrix(y_test,y_predicted)
+        print(final_cm)
+        result_dt.append([current_decision_tree,final_cm])
+
+    return result_dt
+
+
+def pruning_simulation(current_decision_tree,x,y):
+    queue = list()
+    queue.append(current_decision_tree.root_node)
+
+    while queue:
+        current_node = queue.pop(0)
+        if current_node.left.leaf and current_node.right.leaf:
+            orig_val = evaluate(x,y, current_decision_tree)
+            left_counts = current_node.left.label_counts
+            right_counts = current_node.right.label_counts
+            label = None
+            label_count = None
+            if left_counts > right_counts:
+                label = current_node.left.label
+                label_count = current_node.left.label_counts
+            else:
+                label = current_node.right.label
+                label_count = current_node.right.label_counts
+            tmp_orig_node = current_node.clone()
+            orig_val.convert_leaf(label,label_count)
+            pruned_val = evaluate(x,y, current_decision_tree)
+            if orig_val > pruned_val:
+                current_node.change_attribute(tmp_orig_node)
+        else:
+            if current_node.left.leaf:
+                queue.append(current_node.left)
+            if current_node.right.leaf:
+                queue.append(current_node.right)
+
+def pruning_nested_cross_Validation(x,y,outer_fold, inner_fold):
+    indices_list = nested_k_fold_indices(outer_fold,inner_fold, len(x))
+    result_dt = []
+    for k in indices_list:
+        test_indx = k[0]
+        x_test = x[test_indx]
+        y_test = y[test_indx]
+        
+        best_dt = None
+        best_acc = None
+        for j in k[1]:
+            train_indices = j[0]
+            val_indices = j[1]
+            x_train = x[train_indices]
+            y_train = y[train_indices]
+            x_val = x[val_indices]
+            y_val = y[val_indices]
+
+            current_decision_tree = decision_tree()
+            data_tree , data_depth = current_decision_tree.train(x_train,y_train)
+            
+            pruning_simulation(current_decision_tree,x_val,y_val)
+            
+            acc = evaluate(x_val,y_val, current_decision_tree)
+
+            if best_acc is None or acc > best_acc:
+                print("changed best acc to {}".format(acc) )
+                best_acc = acc
+                best_dt = current_decision_tree
+
+        y_predicted = best_dt.predict(x_test)
+
+        final_cm = confusion_matrix(y_test,y_predicted)
+        print(final_cm)
+        result_dt.append([best_dt,final_cm])
+
+    return result_dt
+
+def nested_cross_Validation(x,y,outer_fold, inner_fold):
     indices_list = nested_k_fold_indices(outer_fold,inner_fold, len(x))
     result_dt = []
     for k in indices_list:
@@ -115,15 +207,17 @@ if __name__ == "__main__":
         exit(0)
 
 
+    print("step 3 eval")
     print("clean dataset")
-    clean_dt_evaluation = new_cross_Validation(x_clean,y_clean,outer_fold,inner_fold)
+    clean_dt_evaluation = cross_Validation(x_clean,y_clean,outer_fold)
     print("noisy dataset")
-    noise_dt_evaluation = new_cross_Validation(x_noise,y_noise,outer_fold,inner_fold)
+    noise_dt_evaluation = cross_Validation(x_noise,y_noise,outer_fold)
 
-
-    print("Sum confusion matrix")
+    print("step 4: pruning and eval")
     print("clean dataset")
-        print("noisy dataset")
+    clean_dt_evaluation = pruning_nested_cross_Validation(x_clean,y_clean,outer_fold,inner_fold)
+    print("noisy dataset")
+    noise_dt_evaluation = pruning_nested_cross_Validation(x_noise,y_noise,outer_fold,inner_fold)
 
     
 

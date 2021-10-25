@@ -154,7 +154,7 @@ class decision_tree:
         #     return tree_node(None,None,True,y_train[0]),depth
         first_label= y_train[0]
         if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
-            return tree_node(None,None,True,first_label),depth
+            return tree_node(None,None,None,None,True,first_label,y_train[0]),depth
         # else 
         else:
             # find split of the node
@@ -163,7 +163,7 @@ class decision_tree:
                 x_train_right,y_train_right = decision_tree.find_split(x_train,y_train)
     
             # create node with the split 
-            node  = tree_node(feature,split_value,False, None)
+            node  = tree_node(feature,split_value,None,None,False, None,None)
             # find the left branch recursively
             node.left, left_depth = decision_tree.decision_tree_learning(x_train_left,y_train_left,depth +1)
             # find the right branch recursively
