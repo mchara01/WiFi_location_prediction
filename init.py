@@ -2,7 +2,7 @@ import os
 import numpy as np
 from dataset import dataset
 from decision_tree import decision_tree
-
+import matplotlib.pyplot as plt
 # CONSTANTS DECLARATION
 clean_dataset_file_path = "WIFI_db/clean_dataset.txt"
 noise_dataset_file_path = "WIFI_db/noisy_dataset.txt"
@@ -58,3 +58,26 @@ if __name__ == "__main__":
     noise_decision_tree = decision_tree()
     clean_data_tree , clean_data_depth = clean_decision_tree.train(x_train_clean,y_train_clean)
     noise_data_tree , noise_data_depth = noise_decision_tree.train(x_train_noise,y_train_noise)
+
+    # acc of test set
+    print("acc of test set")
+    y_test_predicted_clean = clean_decision_tree.predict(x_test_clean)
+    y_test_predicted_noise = clean_decision_tree.predict(x_test_noise)
+
+    print(decision_tree.evaluate_acc(y_test_predicted_clean,y_test_clean))
+    print(decision_tree.evaluate_acc(y_test_predicted_noise,y_test_noise))
+
+    # acc of validation
+    print("acc of val set")
+    y_val_predicted_clean = clean_decision_tree.predict(x_test_clean)
+    y_val_predicted_noise = clean_decision_tree.predict(x_test_noise)
+
+    print(decision_tree.evaluate_acc(y_val_predicted_clean,y_test_clean))
+    print(decision_tree.evaluate_acc(y_val_predicted_noise,y_test_noise))
+
+    clean_decision_tree.plottree()
+    plt.xticks(np.arange(-100.0,100.0, 1.0))
+    fig = plt.gcf()
+    fig.set_size_inches(200, 50)
+    fig.savefig('test2png.png', dpi=100)
+    plt.show()

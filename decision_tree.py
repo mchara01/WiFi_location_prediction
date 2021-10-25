@@ -25,7 +25,7 @@ class decision_tree:
         return self.root_node, self.depth
 
     def predict(self,x_test):
-        """TODO method not done
+        """[summary]
 
         Args:
             x_test ([type]): [description]
@@ -52,7 +52,7 @@ class decision_tree:
 
         return y_predict
 
-    def evaluate (self, y_predict, y_test):
+    def evaluate_acc (y_predict, y_test):
         
         return sum(y_predict==y_test)/len(y_test)
 
@@ -171,7 +171,7 @@ class decision_tree:
             # return node and max depth of the two branches 
             return node, max(left_depth,right_depth)
 
-    def plottree(self, node=None, x=0, y=0, width=100):
+    def plottree(self, node=None, x=0, y=0, width=100.0):
         depth_dist = 20
         tree_coords = []
 
@@ -185,20 +185,21 @@ class decision_tree:
             print('plotted',x,y)
 
             # x, y: parent coordinates; xl, yl: left node coordinates; xr, yr: right node coordinates
-            plt.text(x,y,label_node,horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'))
+            plt.text(x,y,label_node,horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'),fontsize="xx-large",fontweight=500)
             
-            xl = x - width
+            xl = x  - (width/2)
             yl = y - depth_dist
-            xr = x + width
+            xr = x + 1 +(width/2)
             yr = y - depth_dist
+
 
             # plot left side recursively
             plt.plot([x, xl], [y, yl])
-            self.plottree(node.left, xl, yl,width*0.55)
+            self.plottree(node.left, xl, yl,width/2)
 
             # plot right side recursively
             plt.plot([x, xr], [y, yr])
-            self.plottree (node.right, xr, yr,width*0.55)
+            self.plottree (node.right, xr, yr,width/2)
         
         # if it's the leaf node, end of recursion.
         if node.leaf:
