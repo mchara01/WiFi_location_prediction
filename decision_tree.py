@@ -30,7 +30,7 @@ class decision_tree:
         Args:
             x_test ([type]): [description]
         """
-        y_predict = np.zeros((len(x_test),)) # initialise y_test that will store 
+        y_predict = np.zeros((len(x_test),), dtype=np.int) # initialise y_test that will store 
         
         for i,instance in enumerate(x_test):
 
@@ -148,7 +148,7 @@ class decision_tree:
                 best_feature_x_train_right,\
                 best_feature_y_train_right
 
-    def decision_tree_learning( x_train, y_train, depth):
+    def decision_tree_learning(x_train, y_train, depth):
         # if all samples from same labels then stop
         # if y_train.shape[0] < 2:
         #     return tree_node(None,None,True,y_train[0]),depth
@@ -181,8 +181,10 @@ class decision_tree:
 
         # if it's not a leaf node
         if not node.leaf: 
+            # the node split condition to be printed on the tree
             label_node = str(node.attribute)+'>'+str(node.value)
-            print('plotted',x,y)
+            print('plotted',x,y)            
+            plt.text(x,y,label_node,fontsize=8,horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'))
 
             # x, y: parent coordinates; xl, yl: left node coordinates; xr, yr: right node coordinates
             plt.text(x,y,label_node,horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'),fontsize="xx-large",fontweight=500)
@@ -197,15 +199,14 @@ class decision_tree:
             plt.plot([x, xl], [y, yl])
             self.plottree(node.left, xl, yl,width/2)
 
-            # plot right side recursively
+            # plot right child node recursively
             plt.plot([x, xr], [y, yr])
             self.plottree (node.right, xr, yr,width/2)
         
-        # if it's the leaf node, end of recursion.
+        # if leaf node reached, end of recursion.
         if node.leaf:
             label_node = 'leaf:'+str(node.label)
-            plt.text(x,y, label_node, horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'))
-            plt.plot(x,y)
+            plt.text(x,y, label_node, fontsize=8, horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'))
             print('plotted leaf node',x,y)
         
 
