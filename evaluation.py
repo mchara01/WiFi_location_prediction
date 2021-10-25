@@ -21,12 +21,47 @@ def k_indices_split(k, rows, random_generator=default_rng()):
     k_indices = np.array_split(indices, k)
     return k_indices
 
+def k_fold_indices(n_folds,n_instances):
+    """ Used for Step 3 - Evaluation, for cross validation. 
+    Generates n_folds possible combinations of indices for training, testing, and validation.
+    
+    Args:
+        n_folds (int): Number of outer folds
+        n_instances (int): Total number of instances (i.e. rows of data)
+
+    Returns:
+        folds (list):
+        [ [[test1], [train1]], [[test2], [train2]], ... ,[[test_nfold], [train_nfold]] ]
+
+        1. Each row represents 1 fold.
+        2. 1st element in each row: test indices.
+        3. 2nd element in each row: train indices.
+    """
+
+    # Initialise
+    folds = []
+
+    # Split the dataset into n_folds
+    split_indices = k_indices_split(n_folds, n_instances)
+
+    for k in range(n_folds):
+
+        # Pick k as test dataset
+        test_indices = split_indices[k]
+
+        # Remaining folds will belong to the training dataset
+        training_indices = np.hstack(split_indices[:k] + split_indices[k+1:])
+
+        # Append into folds
+        folds.append([test_indices, training_indices])
+    
+    return folds
+
 
 def nested_k_fold_indices(n_outer_folds, n_inner_folds, n_instances):
-    """ Generates nested n_folds possible combinations of indices 
+    """ Used for Step 4 - Pruning, for nested cross-validation 
+    Generates nested n_folds possible combinations of indices 
     for training, testing, and validation.
-    where n_outer_fold of testing - trainVal indices
-    n_outer_fold * n_inner_fold of training - validation indices
     
     Args:
         n_outer_folds (int): Number of outer folds
