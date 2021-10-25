@@ -109,17 +109,17 @@ def nested_k_fold_indices(n_outer_folds, n_inner_folds, n_instances):
     return folds
 
 def visualize_k_fold():
-    k = 0
-    for outer_fold in nested_k_fold_cross_validation(4, 30):
-        print("K:" + str(k))
-        for inner_fold in outer_fold:
-            print("Train:") 
-            print(inner_fold[0])
-            print("Test:") 
-            print(inner_fold[1])
-            print("Validation:") 
-            print(inner_fold[2])
-        k+=1
+    """ Function prints the nested k-fold cross validation indices
+    """
+    
+    for index, outer_fold in enumerate(nested_k_fold_indices(10, 10, 30)):
+        print("K:", index+1)
+        print("Test:", outer_fold[0])
+
+        for inner_fold in outer_fold[1]:
+            print("Train:", inner_fold[0])
+            print("Validation:", inner_fold[1])
+        
     return None
 
 def evaluate(x_test,y_test, trained_tree):
@@ -140,7 +140,6 @@ def evaluate(x_test,y_test, trained_tree):
         return np.sum(y_test == y_prediction) / len(y_test)
     except ZeroDivisionError:
         return 0.
-
 
 
 def confusion_matrix(y_truth, y_prediction, class_labels=None):
@@ -181,8 +180,5 @@ def confusion_matrix(y_truth, y_prediction, class_labels=None):
         # fill up the confusion matrix for the current row
         for (j, class_label) in enumerate(class_labels):
             confusion[i, j] = frequency_dict.get(class_label, 0)
-
-    
-        
 
     return confusion

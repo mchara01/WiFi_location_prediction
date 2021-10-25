@@ -144,6 +144,32 @@ def pruning_nested_cross_Validation(x,y,outer_fold, inner_fold):
 
     return result_dt
 
+# Used for Part 3 - Evaluation with simple cross validation
+def cross_Validation(x,y,k_folds):
+    indices_list = k_fold_indices(k_folds,len(x))
+
+    # Initialise the list that will store the confusion matrix from each fold
+    results = [] 
+    for k in indices_list:
+        test_idx = k[0]
+        x_test = x[test_idx]
+        y_test = y[test_idx]
+
+        train_idx = k[1]
+        x_train = x[train_idx]
+        y_train = y[train_idx]
+
+        k_decision_tree = decision_tree()
+        data_tree , data_depth = k_decision_tree.train(x_train,y_train)
+
+        y_predicted = k_decision_tree.predict(x_test)
+        final_cm = confusion_matrix(y_test,y_predicted)
+
+        results.append(final_cm)
+    
+    return results
+
+# Used for Part 4 - Pruning (and Evaluation) with nested cross validation
 def nested_cross_Validation(x,y,outer_fold, inner_fold):
     indices_list = nested_k_fold_indices(outer_fold,inner_fold, len(x))
     result_dt = []
