@@ -25,10 +25,13 @@ class decision_tree:
         return self.root_node, self.depth
 
     def predict(self,x_test):
-        """[summary]
+        """Function takes a set of attributes and predicts their corresponding labels.
 
         Args:
-            x_test ([type]): [description]
+            x_test (array): An array of attributes for each dataset
+        
+        Returns:
+            y_predict (array): An array of labels predicted by the model for the inputted attributes.
         """
         y_predict = np.zeros((len(x_test),), dtype=np.int) # initialise y_test that will store 
         
@@ -51,10 +54,6 @@ class decision_tree:
             y_predict[i] = curr_node.label
 
         return y_predict
-
-    def evaluate_acc (y_predict, y_test):
-        
-        return sum(y_predict==y_test)/len(y_test)
 
     def find_entropy(y_train):
         """Calculates the entropy of a given label set
@@ -183,7 +182,6 @@ class decision_tree:
         if not node.leaf: 
             # the node split condition to be printed on the tree
             label_node = str(node.attribute)+'>'+str(node.value)
-            print('plotted',x,y)            
             plt.text(x,y,label_node,fontsize=8,horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'))
 
             # x, y: parent coordinates; xl, yl: left node coordinates; xr, yr: right node coordinates
@@ -207,7 +205,6 @@ class decision_tree:
         if node.leaf:
             label_node = 'leaf:'+str(node.label)
             plt.text(x,y, label_node, fontsize=8, horizontalalignment='center', verticalalignment='center', bbox=dict(facecolor='white'))
-            print('plotted leaf node',x,y)
         
 
 

@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 from evaluation import *
 
 # CONSTANTS DECLARATION
-clean_dataset_file_path = "WIFI_db/clean_dataset.txt"
-noise_dataset_file_path = "WIFI_db/noisy_dataset.txt"
+clean_dataset_file_path = "wifi_db/clean_dataset.txt"
+noise_dataset_file_path = "wifi_db/noisy_dataset.txt"
 
 def read_full_dt(file_path):
     """This function reads the dataset from a given file path, splits it into training and test samples and returns the result along with their classes.
@@ -25,193 +25,13 @@ def read_full_dt(file_path):
     return x, y, classes
 
 
-# def cross_Validation(x,y):
-#     acc_list = []
-#     indices_list = nested_k_fold_cross_validation(10, len(x))
-#     for k in range(len(indices_list)):
-#         print("K:" + str(k))
-#         inner_list = []
-#         for j in range(len(indices_list[k])):
-#             print("J:" + str(j))
-#             train_indices = indices_list[k][j][0]
-#             test_indices = indices_list[k][j][1]
-#             val_indices = indices_list[k][j][2]
-#             x_train = x[train_indices]
-#             y_train = y[train_indices]
-
-#             x_test = x[test_indices]
-#             y_test = y[test_indices]
-#             test_clean = np.concatenate((x_test, y_test.reshape(len(y_test),1)), axis=1)
-
-#             clean_decision_tree = decision_tree()
-#             clean_data_tree , clean_data_depth = clean_decision_tree.train(x_train,y_train)
-#             #y_pred = clean_decision_tree.predict(x_test)
-#             acc = evaluate(test_clean, clean_decision_tree)
-#             print("Acc: " + str(acc))
-#             inner_list.append(acc)
-#         acc_list.append(inner_list)
-#     return acc_list
-def cross_Validation(x,y,fold):
-    indices_list = k_fold_indices(fold, len(x))
-    result_dt = []
-    for k in indices_list:
-        test_indx = k[0]
-        x_test = x[test_indx]
-        y_test = y[test_indx]
-
-        train_indices = k[1]
-        x_train = x[train_indices]
-        y_train = y[train_indices]
-
-
-        current_decision_tree = decision_tree()
-        data_tree , data_depth = current_decision_tree.train(x_train,y_train)
-
-
-        y_predicted = current_decision_tree.predict(x_test)
-
-        final_cm = confusion_matrix(y_test,y_predicted)
-        print(final_cm)
-        result_dt.append([current_decision_tree,final_cm])
-
-    return result_dt
-
-
-def pruning_simulation(current_decision_tree,x,y):
-    queue = list()
-    queue.append(current_decision_tree.root_node)
-
-    while queue:
-        current_node = queue.pop(0)
-        if current_node.left.leaf and current_node.right.leaf:
-            orig_val = evaluate(x,y, current_decision_tree)
-            left_counts = current_node.left.label_counts
-            right_counts = current_node.right.label_counts
-            label = None
-            label_count = None
-            if left_counts > right_counts:
-                label = current_node.left.label
-                label_count = current_node.left.label_counts
-            else:
-                label = current_node.right.label
-                label_count = current_node.right.label_counts
-            tmp_orig_node = current_node.clone()
-            orig_val.convert_leaf(label,label_count)
-            pruned_val = evaluate(x,y, current_decision_tree)
-            if orig_val > pruned_val:
-                current_node.change_attribute(tmp_orig_node)
-        else:
-            if current_node.left.leaf:
-                queue.append(current_node.left)
-            if current_node.right.leaf:
-                queue.append(current_node.right)
-
-def pruning_nested_cross_Validation(x,y,outer_fold, inner_fold):
-    indices_list = nested_k_fold_indices(outer_fold,inner_fold, len(x))
-    result_dt = []
-    for k in indices_list:
-        test_indx = k[0]
-        x_test = x[test_indx]
-        y_test = y[test_indx]
-        
-        best_dt = None
-        best_acc = None
-        for j in k[1]:
-            train_indices = j[0]
-            val_indices = j[1]
-            x_train = x[train_indices]
-            y_train = y[train_indices]
-            x_val = x[val_indices]
-            y_val = y[val_indices]
-
-            current_decision_tree = decision_tree()
-            data_tree , data_depth = current_decision_tree.train(x_train,y_train)
-            
-            pruning_simulation(current_decision_tree,x_val,y_val)
-            
-            acc = evaluate(x_val,y_val, current_decision_tree)
-
-            if best_acc is None or acc > best_acc:
-                print("changed best acc to {}".format(acc) )
-                best_acc = acc
-                best_dt = current_decision_tree
-
-        y_predicted = best_dt.predict(x_test)
-
-        final_cm = confusion_matrix(y_test,y_predicted)
-        print(final_cm)
-        result_dt.append([best_dt,final_cm])
-
-    return result_dt
-
-# Used for Part 3 - Evaluation with simple cross validation
-def cross_Validation(x,y,k_folds):
-    indices_list = k_fold_indices(k_folds,len(x))
-
-    # Initialise the list that will store the confusion matrix from each fold
-    results = [] 
-    for k in indices_list:
-        test_idx = k[0]
-        x_test = x[test_idx]
-        y_test = y[test_idx]
-
-        train_idx = k[1]
-        x_train = x[train_idx]
-        y_train = y[train_idx]
-
-        k_decision_tree = decision_tree()
-        data_tree , data_depth = k_decision_tree.train(x_train,y_train)
-
-        y_predicted = k_decision_tree.predict(x_test)
-        final_cm = confusion_matrix(y_test,y_predicted)
-
-        results.append(final_cm)
-    
-    return results
-
-# Used for Part 4 - Pruning (and Evaluation) with nested cross validation
-def nested_cross_Validation(x,y,outer_fold, inner_fold):
-    indices_list = nested_k_fold_indices(outer_fold,inner_fold, len(x))
-    result_dt = []
-    for k in indices_list:
-        test_indx = k[0]
-        x_test = x[test_indx]
-        y_test = y[test_indx]
-        
-        best_dt = None
-        best_acc = None
-        for j in k[1]:
-            train_indices = j[0]
-            val_indices = j[1]
-            x_train = x[train_indices]
-            y_train = y[train_indices]
-            x_val = x[val_indices]
-            y_val = y[val_indices]
-
-            current_decision_tree = decision_tree()
-            data_tree , data_depth = current_decision_tree.train(x_train,y_train)
-
-            acc = evaluate(x_val,y_val, current_decision_tree)
-
-            if best_acc is None or acc > best_acc:
-                print("changed best acc to {}".format(acc) )
-                best_acc = acc
-                best_dt = current_decision_tree
-
-        y_predicted = best_dt.predict(x_test)
-
-        final_cm = confusion_matrix(y_test,y_predicted)
-        print(final_cm)
-        result_dt.append([best_dt,final_cm])
-
-    return result_dt
 
 if __name__ == "__main__":
     outer_fold = 10
     inner_fold = 10
 
 
-    #  reading clean dataset and split into training and testing
+    #  Read clean dataset and split into training and testing
     x_clean,y_clean,classes_clean = None, None, None
     if os.path.isfile(clean_dataset_file_path):
         x_clean, y_clean, classes_clean = read_full_dt(clean_dataset_file_path)
@@ -222,7 +42,7 @@ if __name__ == "__main__":
         exit(0)
 
 
-    #  reading clean dataset and split into training and testing
+    #  Read clean dataset and split into training and testing
     x_noise,y_noise,classes_noise = None, None, None
     if os.path.isfile(clean_dataset_file_path):
         x_noise, y_noise, classes_noise = read_full_dt(noise_dataset_file_path)
@@ -233,17 +53,161 @@ if __name__ == "__main__":
         exit(0)
 
 
-    print("step 3 eval")
-    print("clean dataset")
-    clean_dt_evaluation = cross_Validation(x_clean,y_clean,outer_fold)
-    print("noisy dataset")
-    noise_dt_evaluation = cross_Validation(x_noise,y_noise,outer_fold)
+    # PART 2 - Plot 
+    print ("Building Clean Decision Tree")
+    clean_decision_tree = decision_tree()
+    clean_decision_tree.train(x_clean,y_clean)
+    print ("Step 2 (Bonus) - Plotting Decision Tree")
+    clean_decision_tree.plottree()
+    plt.xticks(np.arange(-100.0,100.0, 1.0))
+    fig = plt.gcf()
+    fig.set_size_inches(300, 50)
+    fig.savefig('test2png.png', dpi=100)
+    plt.show()
 
-    print("step 4: pruning and eval")
-    print("clean dataset")
-    clean_dt_evaluation = pruning_nested_cross_Validation(x_clean,y_clean,outer_fold,inner_fold)
-    print("noisy dataset")
-    noise_dt_evaluation = pruning_nested_cross_Validation(x_noise,y_noise,outer_fold,inner_fold)
 
+
+    # PART 3 - Evaluate
+    print("Step 3 - Evaluation")
+    # 3(i): Clean Dataset
+    print("Evaluating clean dataset...")
+    # Run the cross validation and obtain the list of confusion matrix and tree depth from each fold
+    clean_confusionmatrix, clean_depth = cross_Validation(x_clean,y_clean,outer_fold) 
+    print("Confusion Matrix of all folds")
+    print(clean_confusionmatrix)
+
+    # The average of all the confusion matrices
+    ave_clean_cm = np.average(clean_confusionmatrix, axis=0) 
+    print("Average confusion matrix")
+    print(ave_clean_cm)
+
+    # Average accuracy 
+    accuracy_clean = accuracy_cm(ave_clean_cm)
+    print("Accuracy on clean dataset:", accuracy_clean)
     
+    # Recall 
+    recall_clean = recall(ave_clean_cm)
+    print("Recall on clean dataset:", recall_clean)
+
+    # Precision
+    precision_clean = precision(ave_clean_cm)
+    print("Precision on clean dataset:", precision_clean)
+
+    # F1-Score
+    f1_clean = f1_score(ave_clean_cm)
+    print("F1-Score on clean dataset:", f1_clean)
+
+    # Tree-Depth
+    ave_depth_clean = np.average(clean_depth)
+    print("Average tree depth on clean dataset:", ave_depth_clean)
+    print()
+
+
+    # 3(ii): Noisy Dataset
+    print("Evaluating noisy dataset...")
+    # Run the cross validation and obtain the list of confusion matrix from each fold
+    noisy_confusionmatrix, noisy_depth = cross_Validation(x_noise,y_noise,outer_fold) 
+    print("Confusion Matrix of all folds")
+    print(noisy_confusionmatrix)
+
+    # The average of all the confusion matrices
+    ave_noisy_cm = np.average(noisy_confusionmatrix, axis=0) 
+    print("Average confusion matrix")
+    print(ave_noisy_cm)
+
+    # Average accuracy 
+    accuracy_noise = accuracy_cm(ave_noisy_cm)
+    print("Accuracy on noisy dataset:", accuracy_noise)
+    
+    # Recall 
+    recall_noise = recall(ave_noisy_cm)
+    print("Recall on noisy dataset:", recall_noise)
+
+    # Precision
+    precision_noise = precision(ave_noisy_cm)
+    print("Precision on noisy dataset:", precision_noise)
+
+    # F1-Score
+    f1_noise = f1_score(ave_noisy_cm)
+    print("F1-Score on noisy dataset:", f1_noise)
+
+    # Tree-Depth
+    ave_depth_noisy = np.average(noisy_depth)
+    print("Average tree depth on noisy dataset:", ave_depth_noisy)
+    print()
+
+
+
+    # PART 4 - Pruning (and Evaluation)
+    print("Step 4: Pruning (and Evaluation)")
+    # 4(i): Clean Dataset
+    print("Pruning clean dataset...")
+
+    # Run the pruning and nested cross validation, and obtain the list of tree depth and confusion matrix from each fold
+    clean_pruned_cm, clean_pruned_depth = pruning_nested_cross_Validation(x_clean,y_clean,outer_fold,inner_fold)
+
+    print("Confusion Matrix of all folds")
+    print(clean_pruned_cm)
+
+    # The average of all the confusion matrices
+    ave_clean_pruned_cm = np.average(clean_pruned_cm, axis=0) 
+    print("Average confusion matrix")
+    print(ave_clean_pruned_cm)
+
+    # Average accuracy 
+    accuracy_clean_pruned = accuracy_cm(ave_clean_pruned_cm)
+    print("Accuracy on clean dataset:", accuracy_clean_pruned)
+    
+    # Recall 
+    recall_clean_pruned = recall(ave_clean_pruned_cm)
+    print("Recall on clean dataset:", recall_clean_pruned)
+
+    # Precision
+    precision_clean_pruned = precision(ave_clean_pruned_cm)
+    print("Precision on clean dataset:", precision_clean_pruned)
+
+    # F1-Score
+    f1_clean_pruned = f1_score(ave_clean_pruned_cm)
+    print("F1-Score on clean dataset:", f1_clean_pruned)
+
+    # Tree-Depth
+    ave_depth_clean_pruned = np.average(clean_pruned_depth)
+    print("Average tree depth on noisy dataset:", ave_depth_clean_pruned)
+    print()
+
+
+    # 4(ii): Noisy Dataset
+    print("Pruning noisy dataset...")
+
+    # Run the pruning and nested cross validation, and obtain the list of confusion matrix from each fold
+    noisy_pruned_cm, noisy_pruned_depth = pruning_nested_cross_Validation(x_noise,y_noise,outer_fold,inner_fold)
+
+    print("Confusion Matrix of all folds")  
+    print(noisy_pruned_cm)
+
+    # The average of all the confusion matrices
+    ave_noisy_pruned_cm = np.average(noisy_pruned_cm, axis=0) 
+    print("Average confusion matrix")
+    print(ave_noisy_pruned_cm)
+
+    # Average accuracy 
+    accuracy_noisy_pruned = accuracy_cm(ave_noisy_pruned_cm)
+    print("Accuracy on noisy dataset:", accuracy_noisy_pruned)
+    
+    # Recall 
+    recall_noisy_pruned = recall(ave_noisy_pruned_cm)
+    print("Recall on noisy dataset:", recall_noisy_pruned)
+
+    # Precision
+    precision_noisy_pruned = precision(ave_noisy_pruned_cm)
+    print("Precision on noisy dataset:", precision_noisy_pruned)
+
+    # F1-Score
+    f1_noisy_pruned = f1_score(ave_noisy_pruned_cm)
+    print("F1-Score on noisy dataset:", f1_noisy_pruned)
+
+    # Tree-Depth
+    ave_depth_noisy_pruned = np.average(noisy_pruned_depth)
+    print("Average tree depth on noisy dataset:", ave_depth_noisy_pruned)
+    print()
 

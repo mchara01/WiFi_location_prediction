@@ -1,184 +1,294 @@
 import numpy as np
-import copy
 from numpy.random import default_rng
+from decision_tree import decision_tree
+from dataset import *
 
 
-
-def k_indices_split(k, rows, random_generator=default_rng()):
-    """ Splitting indices into k fold randomly
+# Step 3 - Evaluation with simple cross validation
+def cross_Validation(x,y,k_folds):
+    """
+    Computes and appends the confusion matrix generated from each fold.
+    At each fold, the function trains the decision tree with training data.
+    Its performance is then evaluated with the test data, and appended.
 
     Args:
-        k (int): k splits
-        rows (int): Number of rows to split
-        random_generator (np.random.Generator): A random generator
+        y_test (numpy.ndarray): test dataset label
+        y_predict (numpy.ndarray): predicted label
 
     Returns:
-        list: a list (length n_splits). [list1, list2, list3] that each contains the indices,
-        where list1, list2, list3 respectively contains a list of indices
+        results: list of length k_folds
+            - Each element is the confusion matrix corresponding to a fold. 
+        depth: list of length k_folds
+            - Each element is the confusion matrix corresponding to a fold. 
     """
-    # Shuffle the indices
-    indices = random_generator.permutation(rows)
-    k_indices = np.array_split(indices, k)
-    return k_indices
+    indices_list = dataset.k_fold_indices(k_folds,len(x))
 
-def k_fold_indices(n_folds,n_instances):
-    """ Used for Step 3 - Evaluation, for cross validation. 
-    Generates n_folds possible combinations of indices for training, testing, and validation.
+    # Initialise the list that will store the:
+    # (i) confusion matrix from each fold
+    results = [] 
+    # (ii) depth of the decision tree from each fold
+    depth = []
+
+    # Going through each fold
+    for k in indices_list:
+        # Testing dataset
+        test_idx = k[0]
+        x_test = x[test_idx]
+        y_test = y[test_idx]
+
+        # Training dataset
+        train_idx = k[1]
+        x_train = x[train_idx]
+        y_train = y[train_idx]
+
+        # Training the decision tree
+        k_decision_tree = decision_tree()
+        data_tree , data_depth = k_decision_tree.train(x_train,y_train)
+
+        # Predict the label and evaluate performance
+        y_predicted = k_decision_tree.predict(x_test)
+        final_cm = confusion_matrix(y_test,y_predicted)
+
+        results.append(final_cm)
+        depth.append(k_decision_tree.depth)
     
-    Args:
-        n_folds (int): Number of outer folds
-        n_instances (int): Total number of instances (i.e. rows of data)
+    return results, depth
 
-    Returns:
-        folds (list):
-        [ [[test1], [train1]], [[test2], [train2]], ... ,[[test_nfold], [train_nfold]] ]
-
-        1. Each row represents 1 fold.
-        2. 1st element in each row: test indices.
-        3. 2nd element in each row: train indices.
-    """
-
-    # Initialise
-    folds = []
-
-    # Split the dataset into n_folds
-    split_indices = k_indices_split(n_folds, n_instances)
-
-    for k in range(n_folds):
-
-        # Pick k as test dataset
-        test_indices = split_indices[k]
-
-        # Remaining folds will belong to the training dataset
-        training_indices = np.hstack(split_indices[:k] + split_indices[k+1:])
-
-        # Append into folds
-        folds.append([test_indices, training_indices])
-    
-    return folds
-
-
-def nested_k_fold_indices(n_outer_folds, n_inner_folds, n_instances):
-    """ Used for Step 4 - Pruning, for nested cross-validation 
-    Generates nested n_folds possible combinations of indices 
-    for training, testing, and validation.
-    
-    Args:
-        n_outer_folds (int): Number of outer folds
-        n_inner_folds (int): Number of inner folds
-        n_instances (int): Total number of instances (i.e. rows of data)
-
-    Returns:
-        folds (list):
-        [[test1, [ [[train1 indices], [val1 indices]], [[train2 indices],[val2 indices]], ... ],
-         [test2, [ [[train1 indices], [val1 indices]], [[train2 indices],[val2 indices]], ... ],
-         ... ]
-
-        1. Each row represents the outer fold.
-        2. 1st element in each row: test indices
-        3. 2nd element in each row: appended list indices for each of the inner folds in this layer.
-    """
-    # Initialise 
-    folds = []
-
-    # Split the dataset into n_outer_folds
-    outer_split_indices = k_indices_split(n_outer_folds, n_instances)
-
-    for k in range(n_outer_folds):
-
-        # Pick k as test dataset
-        test_indices = outer_split_indices[k]
+# Step 4 - Pruning with Nested Cross-Validation
+def pruning_nested_cross_Validation(x,y,outer_fold, inner_fold):
+    indices_list = dataset.nested_k_fold_indices(outer_fold,inner_fold, len(x))
+    result_dt = []
+    depth = []
+    for k in indices_list:
+        test_indx = k[0]
+        x_test = x[test_indx]
+        y_test = y[test_indx]
         
-        # Remaining dataset
-        remaining_indices = np.hstack(outer_split_indices[:k] + outer_split_indices[k+1:])
-        inner_split_indices = k_indices_split(n_inner_folds, len(remaining_indices))
+        best_dt = None
+        best_acc = None
+        for j in k[1]: # k[1]: [ [[train1 indices],[val1 indices]] , [[train2 indices],[val2 indices]] ...]
+            train_indices = j[0] 
+            val_indices = j[1]
+            x_train = x[train_indices]
+            y_train = y[train_indices]
+            x_val = x[val_indices]
+            y_val = y[val_indices]
 
-        # Generate indices to split the remaining dataset into training and validation sets
-        inner_fold = []
-        for j in range(n_inner_folds):
+            current_decision_tree = decision_tree()
+            data_tree , data_depth = current_decision_tree.train(x_train,y_train)
             
-            val_indices = remaining_indices[inner_split_indices[j]]
-            train_intermediate_idx = np.hstack(inner_split_indices[:j]+inner_split_indices[j+1:])
-            train_indices = remaining_indices[train_intermediate_idx]
+            pruning_simulation(current_decision_tree,x_val,y_val)
+            y_predict = current_decision_tree.predict(x_val)
+            acc = evaluate(y_val, y_predict)
 
-            inner_fold.append([train_indices,val_indices])
-            
-            
-        folds.append([test_indices,inner_fold])
+            if best_acc is None or acc > best_acc:
+                # print("changed best acc to {}".format(acc) )
+                best_acc = acc
+                best_dt = current_decision_tree
 
-    return folds
+        y_predicted = best_dt.predict(x_test)
 
-def visualize_k_fold():
-    """ Function prints the nested k-fold cross validation indices
-    """
-    
-    for index, outer_fold in enumerate(nested_k_fold_indices(10, 10, 30)):
-        print("K:", index+1)
-        print("Test:", outer_fold[0])
+        final_cm = confusion_matrix(y_test,y_predicted)
+        # print(final_cm)
+        result_dt.append(final_cm) #best_dt,final_cm]
+        depth.append(best_dt.depth)
 
-        for inner_fold in outer_fold[1]:
-            print("Train:", inner_fold[0])
-            print("Validation:", inner_fold[1])
-        
-    return None
+    return result_dt, depth
 
-def evaluate(x_test,y_test, trained_tree):
-    """ Compute the accuracy given the ground truth and predictions
+def pruning_simulation(current_decision_tree,x,y):
+    queue = list()
+    queue.append(current_decision_tree.root_node)
 
-    Args:
-        test_set (numpy.ndarray): test dataset
-        trained_tree (object node): trained decision tree
-
-    Returns:
-        float : the accuracy
-    """
-
-    y_prediction = trained_tree.predict(x_test)
-    assert len(y_test) == len(y_prediction)  
-    
-    try:
-        return np.sum(y_test == y_prediction) / len(y_test)
-    except ZeroDivisionError:
-        return 0.
+    while queue:
+        current_node = queue.pop(0)
+        if current_node.left.leaf and current_node.right.leaf:
+            y_predict = current_decision_tree.predict(x)
+            orig_val = evaluate(y, y_predict)
+            left_counts = current_node.left.label_counts
+            right_counts = current_node.right.label_counts
+            label = None
+            label_count = None
+            if left_counts > right_counts:
+                label = current_node.left.label
+                label_count = current_node.left.label_counts
+            else:
+                label = current_node.right.label
+                label_count = current_node.right.label_counts
+            tmp_orig_node = current_node.clone()
+            orig_val.convert_leaf(label,label_count)
+            y_predict_pruned = current_decision_tree.predict(x)
+            pruned_val = evaluate(y, y_predict_pruned)
 
 
-def confusion_matrix(y_truth, y_prediction, class_labels=None):
+            if orig_val > pruned_val:
+                current_node.change_attribute(tmp_orig_node)
+        else:
+            if current_node.left.leaf:
+                queue.append(current_node.left)
+            if current_node.right.leaf:
+                queue.append(current_node.right)
+
+# Evaluation Metric 1: Confusion Matrix
+def confusion_matrix(y_truth, y_prediction):
     """ Compute the confusion matrix.
         
     Args:
-        y_truth (np.ndarray): the correct ground truth/gold standard labels
-        y_prediction (np.ndarray): the predicted labels
-        class_labels (np.ndarray): a list of unique class labels. 
-                               Defaults to the union of y_gold and y_prediction.
+        y_truth (np.ndarray): the actual data labels
+        y_prediction (np.ndarray): the predicted labels 
 
     Returns:
-        np.array : shape (C, C), where C is the number of classes. 
-                   Rows are ground truth per class, columns are predictions
+        confusion (np.array): shape (C, C), where C is the number of classes. 
+        Rows are ground truth per class, columns are predictions
     """
 
-    # if no class_labels are given, we obtain the set of unique class labels from
-    # the union of the ground truth annotation and the prediction
-    if not class_labels:
-        class_labels = np.unique(np.concatenate((y_truth, y_prediction)))
+    # An array of all the possible class labels
+    class_labels = np.unique(np.concatenate((y_truth, y_prediction)))
 
+    # Initialise the confusion matrix
     confusion = np.zeros((len(class_labels), len(class_labels)), dtype=np.int)
 
-    # for each correct class (row), 
-    # compute how many instances are predicted for each class (columns)
+    # For each class (row), 
     for (i, label) in enumerate(class_labels):
-        # get predictions where the ground truth is the current class label
+
+        # Tabulate the model's predictions for that class (columns)
         indices = (y_truth == label)
         truth = y_truth[indices]
         predictions = y_prediction[indices]
 
-        # quick way to get the counts per label
+        # Counts per label
         (unique_labels, counts) = np.unique(predictions, return_counts=True)
 
-        # convert the counts to a dictionary
+        # Convert the counts to a dictionary
         frequency_dict = dict(zip(unique_labels, counts))
 
-        # fill up the confusion matrix for the current row
+        # Populate confusion matrix for the current label (row)
         for (j, class_label) in enumerate(class_labels):
             confusion[i, j] = frequency_dict.get(class_label, 0)
 
     return confusion
+
+# Evaluation Metric 2(i): Accuracy using y_test and y_predict
+def evaluate(y_test, y_predict):
+    """ Compute the accuracy given the ground truth and predictions
+
+    Args:
+        y_test (numpy.ndarray): test dataset label
+        y_predict (numpy.ndarray): predicted label
+
+    Returns:
+        float : the accuracy
+    """
+    assert len(y_test) == len(y_predict)  
+    
+    try:
+        return np.sum(y_test == y_predict) / len(y_test)
+    except ZeroDivisionError:
+        return 0.
+
+
+# Evaluation Metric 2(ii): Accuracy using confusion matrix
+def accuracy_cm(confusionmatrix):
+    """ Compute the accuracy given the ground truth and predictions
+
+    Args:
+        confusionmatrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
+        Rows are ground truth per class, columns are predictions
+
+    Returns:
+        float : the accuracy
+    """
+    if np.sum(confusionmatrix) > 0:
+        return np.sum(np.diag(confusionmatrix)) / np.sum(confusionmatrix)
+    else:
+        return 0.
+
+
+# Evaluation Metric 3: Precision
+def precision(confusionmatrix):
+    """ Compute the precision score per class, as well as the macro-averaged precision
+    given a confusion matrix. 
+        
+    Args:
+        confusionmatrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
+        Rows are ground truth per class, columns are predictions
+
+    Returns:
+        tuple: returns a tuple (precisions, macro_precision) where:
+            - precisions: np.ndarray of shape (C,), where each element is the precision for class c
+            - macro-precision: a float of the macro-averaged precision 
+    """
+    # Precision Score per Class
+    precision = np.zeros((len(confusionmatrix), ))
+    for c in range(confusionmatrix.shape[0]):
+        if np.sum(confusionmatrix[:, c]) > 0:
+            precision[c] = confusionmatrix[c, c] / np.sum(confusionmatrix[:, c]) 
+
+    # Macro-averaged precision
+    macro_precision = 0.
+    if len(precision) > 0:
+        macro_precision = np.mean(precision)
+    
+    return (precision, macro_precision)
+
+# Evaluation Metric 4: Recall
+def recall(confusionmatrix):
+    """ Computes the recall score per class, as well as the macro-averaged recall
+    given a confusion matrix. 
+        
+    Args:
+        confusionmatrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
+        Rows are ground truth per class, columns are predictions.
+
+    Returns:
+        tuple: returns a tuple (recalls, macro_recall) where:
+        - recalls: a np.ndarray of shape (C,), where each element is the recall for class c
+        - macro-recall: a float of the macro-averaged recall 
+    """
+
+    # Recall score per class
+    recall = np.zeros((len(confusionmatrix), ))
+    for c in range(confusionmatrix.shape[0]):
+        if np.sum(confusionmatrix[c, :]) > 0:
+            recall[c] = confusionmatrix[c, c] / np.sum(confusionmatrix[c, :])
+
+    # Macro-averaged recall
+    macro_recall = 0.
+    if len(recall) > 0:
+        macro_recall = np.mean(recall)
+    
+    return (recall, macro_recall)
+
+# Evaluation Metric 5: F1-Score
+def f1_score(confusionmatrix):
+    """ Compute the F1-score per class, as well as the macro-averaged F1-score 
+    given a confusion matrix.
+        
+    Args:
+        confusionmatrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
+        Rows are ground truth per class, columns are predictions.
+
+    Returns:
+        tuple: returns a tuple (f1s, macro_f1) where:
+        - f1s: a np.ndarray of shape (C,), where each element is the f1-score for class c
+        - macro-f1: a float of the macro-averaged f1-score 
+    """
+
+    # Get the precision and recall 
+    (precisions, macro_p) = precision(confusionmatrix)
+    (recalls, macro_r) = recall(confusionmatrix)
+
+    # Ensure precision and recall are of same length
+    assert len(precisions) == len(recalls)
+
+    # F1-Score per class
+    f = np.zeros((len(precisions), ))
+    for c, (p, r) in enumerate(zip(precisions, recalls)):
+        if p + r > 0:
+            f[c] = 2 * p * r / (p + r)
+
+    # Macro-averaged F1
+    macro_f = 0.
+    if len(f) > 0:
+        macro_f = np.mean(f)
+    
+    return (f, macro_f)
