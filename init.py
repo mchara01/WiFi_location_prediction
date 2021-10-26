@@ -24,8 +24,6 @@ def read_full_dt(file_path):
 
     return x, y, classes
 
-
-
 if __name__ == "__main__":
     outer_fold = 10
     inner_fold = 10
