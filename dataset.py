@@ -1,5 +1,6 @@
 import os
 import numpy as np
+
 from numpy.random import default_rng
 
 class dataset:
@@ -28,8 +29,6 @@ class dataset:
 
         classes, y = np.unique(y, return_inverse=True)
         return (x, y, classes)
-
-        return (x_train, x_test, y_train, y_test)
 
     def k_indices_split(k, rows, random_generator=default_rng()):
         """ Splitting indices into k folds randomly

@@ -1,27 +1,31 @@
+"""
+FILL MODULE DOCSTRING!
+"""
 import os
 import numpy as np
+import matplotlib.pyplot as plt
+
+from evaluation import *
 from dataset import dataset
 from decision_tree import decision_tree
-import matplotlib.pyplot as plt
-from evaluation import *
 
 # CONSTANTS DECLARATION
 clean_dataset_file_path = "wifi_db/clean_dataset.txt"
 noise_dataset_file_path = "wifi_db/noisy_dataset.txt"
 
 def read_full_dt(file_path):
-    """This function reads the dataset from a given file path, splits it into training and test samples and returns the result along with their classes.
+    """Read a dataset.
+
+    Read a dataset from a given file path, split it into training and test samples and return results classes.
 
     Args:
-        file_path ([String]): Location of the file on local storage
-        test_proportion ([float]): Percentage of testing samples in the dataset
+        file_path (str): Location of the file on local storage.
 
     Returns:
         np.array, np.array: Results of the dataset spliting into X and Y and classes
     """
     x, y, classes = dataset.read_dataset(file_path)
     
-
     return x, y, classes
 
 if __name__ == "__main__":
