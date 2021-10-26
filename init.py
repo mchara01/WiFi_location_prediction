@@ -170,41 +170,41 @@ def cross_Validation(x,y,k_folds):
     return results
 
 # Used for Part 4 - Pruning (and Evaluation) with nested cross validation
-def nested_cross_Validation(x,y,outer_fold, inner_fold):
-    indices_list = nested_k_fold_indices(outer_fold,inner_fold, len(x))
-    result_dt = []
-    for k in indices_list:
-        test_indx = k[0]
-        x_test = x[test_indx]
-        y_test = y[test_indx]
+# def nested_cross_Validation(x,y,outer_fold, inner_fold):
+#     indices_list = nested_k_fold_indices(outer_fold,inner_fold, len(x))
+#     result_dt = []
+#     for k in indices_list:
+#         test_indx = k[0]
+#         x_test = x[test_indx]
+#         y_test = y[test_indx]
         
-        best_dt = None
-        best_acc = None
-        for j in k[1]:
-            train_indices = j[0]
-            val_indices = j[1]
-            x_train = x[train_indices]
-            y_train = y[train_indices]
-            x_val = x[val_indices]
-            y_val = y[val_indices]
+#         best_dt = None
+#         best_acc = None
+#         for j in k[1]:
+#             train_indices = j[0]
+#             val_indices = j[1]
+#             x_train = x[train_indices]
+#             y_train = y[train_indices]
+#             x_val = x[val_indices]
+#             y_val = y[val_indices]
 
-            current_decision_tree = decision_tree()
-            data_tree , data_depth = current_decision_tree.train(x_train,y_train)
+#             current_decision_tree = decision_tree()
+#             data_tree , data_depth = current_decision_tree.train(x_train,y_train)
 
-            acc = evaluate(x_val,y_val, current_decision_tree)
+#             acc = evaluate(x_val,y_val, current_decision_tree)
 
-            if best_acc is None or acc > best_acc:
-                print("changed best acc to {}".format(acc) )
-                best_acc = acc
-                best_dt = current_decision_tree
+#             if best_acc is None or acc > best_acc:
+#                 print("changed best acc to {}".format(acc) )
+#                 best_acc = acc
+#                 best_dt = current_decision_tree
 
-        y_predicted = best_dt.predict(x_test)
+#         y_predicted = best_dt.predict(x_test)
 
-        final_cm = confusion_matrix(y_test,y_predicted)
-        print(final_cm)
-        result_dt.append([best_dt,final_cm])
+#         final_cm = confusion_matrix(y_test,y_predicted)
+#         print(final_cm)
+#         result_dt.append([best_dt,final_cm])
 
-    return result_dt
+#     return result_dt
 
 if __name__ == "__main__":
     outer_fold = 10
