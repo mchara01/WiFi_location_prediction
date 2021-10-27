@@ -1,15 +1,21 @@
-import os
+"""
+
+"""
 import numpy as np
 
 from numpy.random import default_rng
 
-class dataset:
 
-    def read_dataset(filepath):
-        """ Read in the dataset from the specified filepath
+class Dataset:
+
+    def read_dataset(file_path):
+        """ Read the dataset from the specified file path.
+
+        Read a dataset from a given file path, split it into training and test samples and return them
+        along with the classes in the dataset.
 
         Args:
-            filepath (str): The filepath to the dataset file
+            file_path (str): The relative or absolute path to the dataset file.
 
         Returns:
             tuple: returns a tuple of (x, y, classes), each being a numpy array. 
@@ -21,12 +27,12 @@ class dataset:
                     - classes : a numpy array with shape (C, ), which contains the 
                         unique class labels corresponding to the integers in y
         """
-
-        data = np.loadtxt(filepath)
-
-        x = data[:,:-1]
-        y = data[:,-1]
-
+        # Load .txt file from file_path
+        data = np.loadtxt(file_path)
+        # Divide dataset into its features(x) and labels(y)
+        x = data[:, :-1]
+        y = data[:, -1]
+        # Find classes and their indices from y
         classes, y = np.unique(y, return_inverse=True)
         return (x, y, classes)
 
@@ -47,7 +53,7 @@ class dataset:
         k_indices = np.array_split(indices, k)
         return k_indices
 
-    def k_fold_indices(n_folds,n_instances):
+    def k_fold_indices(n_folds, n_instances):
         """ Used for Step 3 - Evaluation, for cross validation. 
         Generates n_folds possible combinations of indices for training, testing, and validation.
         
@@ -68,19 +74,18 @@ class dataset:
         folds = []
 
         # Split the dataset into n_folds
-        split_indices = dataset.k_indices_split(n_folds, n_instances)
+        split_indices = Dataset.k_indices_split(n_folds, n_instances)
 
         for k in range(n_folds):
-
             # Pick k as test dataset
             test_indices = split_indices[k]
 
             # Remaining folds will belong to the training dataset
-            training_indices = np.hstack(split_indices[:k] + split_indices[k+1:])
+            training_indices = np.hstack(split_indices[:k] + split_indices[k + 1:])
 
             # Append into folds
             folds.append([test_indices, training_indices])
-        
+
         return folds
 
     def nested_k_fold_indices(n_outer_folds, n_inner_folds, n_instances):
@@ -107,42 +112,39 @@ class dataset:
         folds = []
 
         # Split the dataset into n_outer_folds
-        outer_split_indices = dataset.k_indices_split(n_outer_folds, n_instances)
+        outer_split_indices = Dataset.k_indices_split(n_outer_folds, n_instances)
 
         for k in range(n_outer_folds):
 
             # Pick k as test dataset
             test_indices = outer_split_indices[k]
-            
+
             # Remaining dataset
-            remaining_indices = np.hstack(outer_split_indices[:k] + outer_split_indices[k+1:])
-            inner_split_indices = dataset.k_indices_split(n_inner_folds, len(remaining_indices))
+            remaining_indices = np.hstack(outer_split_indices[:k] + outer_split_indices[k + 1:])
+            inner_split_indices = Dataset.k_indices_split(n_inner_folds, len(remaining_indices))
 
             # Generate indices to split the remaining dataset into training and validation sets
             inner_fold = []
             for j in range(n_inner_folds):
-                
                 val_indices = remaining_indices[inner_split_indices[j]]
-                train_intermediate_idx = np.hstack(inner_split_indices[:j]+inner_split_indices[j+1:])
+                train_intermediate_idx = np.hstack(inner_split_indices[:j] + inner_split_indices[j + 1:])
                 train_indices = remaining_indices[train_intermediate_idx]
 
-                inner_fold.append([train_indices,val_indices])
-                
-                
-            folds.append([test_indices,inner_fold])
+                inner_fold.append([train_indices, val_indices])
+
+            folds.append([test_indices, inner_fold])
 
         return folds
-    
 
     def visualize_k_fold():
         """ Function prints the nested k-fold cross validation indices into terminal. """
-        
-        for index, outer_fold in enumerate(dataset.nested_k_fold_indices(10, 10, 30)):
-            print("K:", index+1)
+
+        for index, outer_fold in enumerate(Dataset.nested_k_fold_indices(10, 10, 30)):
+            print("K:", index + 1)
             print("Test:", outer_fold[0])
 
             for inner_fold in outer_fold[1]:
                 print("Train:", inner_fold[0])
                 print("Validation:", inner_fold[1])
-            
+
         return None

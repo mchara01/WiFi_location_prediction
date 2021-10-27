@@ -1,11 +1,11 @@
 import numpy as np
-from numpy.random import default_rng
+
 from decision_tree import decision_tree
 from dataset import *
 
 
 # Step 3 - Evaluation with simple cross validation
-def cross_Validation(x,y,k_folds):
+def cross_validation(x, y, k_folds):
     """
     Computes and appends the confusion matrix generated from each fold.
     At each fold, the function trains the decision tree with training data.
@@ -21,11 +21,11 @@ def cross_Validation(x,y,k_folds):
         depth: list of length k_folds
             - Each element is the confusion matrix corresponding to a fold. 
     """
-    indices_list = dataset.k_fold_indices(k_folds,len(x))
+    indices_list = Dataset.k_fold_indices(k_folds, len(x))
 
     # Initialise the list that will store the:
     # (i) confusion matrix from each fold
-    results = [] 
+    results = []
     # (ii) depth of the decision tree from each fold
     depth = []
 
@@ -43,31 +43,32 @@ def cross_Validation(x,y,k_folds):
 
         # Training the decision tree
         k_decision_tree = decision_tree()
-        data_tree , data_depth = k_decision_tree.train(x_train,y_train)
+        data_tree, data_depth = k_decision_tree.train(x_train, y_train)
 
         # Predict the label and evaluate performance
         y_predicted = k_decision_tree.predict(x_test)
-        final_cm = confusion_matrix(y_test,y_predicted)
+        final_cm = confusion_matrix(y_test, y_predicted)
 
         results.append(final_cm)
         depth.append(k_decision_tree.depth)
-    
+
     return results, depth
 
+
 # Step 4 - Pruning with Nested Cross-Validation
-def pruning_nested_cross_Validation(x,y,outer_fold, inner_fold):
-    indices_list = dataset.nested_k_fold_indices(outer_fold,inner_fold, len(x))
+def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
+    indices_list = Dataset.nested_k_fold_indices(outer_fold, inner_fold, len(x))
     result_dt = []
     depth = []
     for k in indices_list:
         test_indx = k[0]
         x_test = x[test_indx]
         y_test = y[test_indx]
-        
+
         best_dt = None
         best_acc = None
-        for j in k[1]: # k[1]: [ [[train1 indices],[val1 indices]] , [[train2 indices],[val2 indices]] ...]
-            train_indices = j[0] 
+        for j in k[1]:  # k[1]: [ [[train1 indices],[val1 indices]] , [[train2 indices],[val2 indices]] ...]
+            train_indices = j[0]
             val_indices = j[1]
             x_train = x[train_indices]
             y_train = y[train_indices]
@@ -75,9 +76,9 @@ def pruning_nested_cross_Validation(x,y,outer_fold, inner_fold):
             y_val = y[val_indices]
 
             current_decision_tree = decision_tree()
-            data_tree , data_depth = current_decision_tree.train(x_train,y_train)
-            
-            pruning_simulation(current_decision_tree,x_val,y_val)
+            data_tree, data_depth = current_decision_tree.train(x_train, y_train)
+
+            pruning_simulation(current_decision_tree, x_val, y_val)
             y_predict = current_decision_tree.predict(x_val)
             acc = evaluate(y_val, y_predict)
 
@@ -88,14 +89,15 @@ def pruning_nested_cross_Validation(x,y,outer_fold, inner_fold):
 
         y_predicted = best_dt.predict(x_test)
 
-        final_cm = confusion_matrix(y_test,y_predicted)
+        final_cm = confusion_matrix(y_test, y_predicted)
         # print(final_cm)
-        result_dt.append(final_cm) #best_dt,final_cm]
+        result_dt.append(final_cm)  # best_dt,final_cm]
         depth.append(best_dt.depth)
 
     return result_dt, depth
 
-def pruning_simulation(current_decision_tree,x,y):
+
+def pruning_simulation(current_decision_tree, x, y):
     queue = list()
     queue.append(current_decision_tree.root_node)
 
@@ -115,10 +117,9 @@ def pruning_simulation(current_decision_tree,x,y):
                 label = current_node.right.label
                 label_count = current_node.right.label_counts
             tmp_orig_node = current_node.clone()
-            orig_val.convert_leaf(label,label_count)
+            orig_val.convert_leaf(label, label_count)
             y_predict_pruned = current_decision_tree.predict(x)
             pruned_val = evaluate(y, y_predict_pruned)
-
 
             if orig_val > pruned_val:
                 current_node.change_attribute(tmp_orig_node)
@@ -127,6 +128,7 @@ def pruning_simulation(current_decision_tree,x,y):
                 queue.append(current_node.left)
             if current_node.right.leaf:
                 queue.append(current_node.right)
+
 
 # Evaluation Metric 1: Confusion Matrix
 def confusion_matrix(y_truth, y_prediction):
@@ -167,6 +169,7 @@ def confusion_matrix(y_truth, y_prediction):
 
     return confusion
 
+
 # Evaluation Metric 2(i): Accuracy using y_test and y_predict
 def evaluate(y_test, y_predict):
     """ Compute the accuracy given the ground truth and predictions
@@ -178,8 +181,8 @@ def evaluate(y_test, y_predict):
     Returns:
         float : the accuracy
     """
-    assert len(y_test) == len(y_predict)  
-    
+    assert len(y_test) == len(y_predict)
+
     try:
         return np.sum(y_test == y_predict) / len(y_test)
     except ZeroDivisionError:
@@ -218,17 +221,18 @@ def precision(confusionmatrix):
             - macro-precision: a float of the macro-averaged precision 
     """
     # Precision Score per Class
-    precision = np.zeros((len(confusionmatrix), ))
+    precision = np.zeros((len(confusionmatrix),))
     for c in range(confusionmatrix.shape[0]):
         if np.sum(confusionmatrix[:, c]) > 0:
-            precision[c] = confusionmatrix[c, c] / np.sum(confusionmatrix[:, c]) 
+            precision[c] = confusionmatrix[c, c] / np.sum(confusionmatrix[:, c])
 
-    # Macro-averaged precision
+            # Macro-averaged precision
     macro_precision = 0.
     if len(precision) > 0:
         macro_precision = np.mean(precision)
-    
+
     return (precision, macro_precision)
+
 
 # Evaluation Metric 4: Recall
 def recall(confusionmatrix):
@@ -246,7 +250,7 @@ def recall(confusionmatrix):
     """
 
     # Recall score per class
-    recall = np.zeros((len(confusionmatrix), ))
+    recall = np.zeros((len(confusionmatrix),))
     for c in range(confusionmatrix.shape[0]):
         if np.sum(confusionmatrix[c, :]) > 0:
             recall[c] = confusionmatrix[c, c] / np.sum(confusionmatrix[c, :])
@@ -255,8 +259,9 @@ def recall(confusionmatrix):
     macro_recall = 0.
     if len(recall) > 0:
         macro_recall = np.mean(recall)
-    
+
     return (recall, macro_recall)
+
 
 # Evaluation Metric 5: F1-Score
 def f1_score(confusionmatrix):
@@ -281,7 +286,7 @@ def f1_score(confusionmatrix):
     assert len(precisions) == len(recalls)
 
     # F1-Score per class
-    f = np.zeros((len(precisions), ))
+    f = np.zeros((len(precisions),))
     for c, (p, r) in enumerate(zip(precisions, recalls)):
         if p + r > 0:
             f[c] = 2 * p * r / (p + r)
@@ -290,5 +295,5 @@ def f1_score(confusionmatrix):
     macro_f = 0.
     if len(f) > 0:
         macro_f = np.mean(f)
-    
-    return (f, macro_f)
+
+    return f, macro_f

@@ -1,6 +1,6 @@
-class tree_node:
+class TreeNode:
 
-    def __init__(self,attribute, value,left,right, leaf, label,label_counts):
+    def __init__(self, attribute, value, left, right, leaf, label, label_counts):
         self.attribute = attribute
         self.value = value
         self.left = left
@@ -9,7 +9,7 @@ class tree_node:
         self.label = label
         self.label_counts = label_counts
 
-    def setLeaf(self,label,label_counts):
+    def set_leaf(self, label, label_counts):
         self.attribute = None
         self.value = None
         self.left = None
@@ -18,7 +18,7 @@ class tree_node:
         self.label = label
         self.label_counts = label_counts
 
-    def change_attribute(self,node):
+    def change_attribute(self, node):
         self.attribute = node.attribute
         self.value = node.value
         self.left = node.left
@@ -26,15 +26,19 @@ class tree_node:
         self.leaf = node.leaf
         self.label = node.label
         self.label_counts = node.label_counts
-        
+
     def clone(self):
-        return tree_node(self.parent_node,self.attribute,self.value,self.left,self.right,self.leaf,self.label,self.label_counts)
-    
+        return TreeNode(self.parent_node, self.attribute, self.value, self.left, self.right, self.leaf, self.label,
+                         self.label_counts)
+
     def __repr__(self):
-        return str({"attribute":self.attribute,"value":self.value,"leaf":self.leaf,"label":self.label,"label_counts":self.label_counts,"left":self.left,"right":self.right})
+        return str({"attribute": self.attribute, "value": self.value, "leaf": self.leaf, "label": self.label,
+                    "label_counts": self.label_counts, "left": self.left, "right": self.right})
 
     def __str__(self):
-        return {"attribute":self.attribute,"value":self.value,"leaf":self.leaf,"label":self.label,"label_counts":self.label_counts,"left":self.left,"right":self.right}
+        return {"attribute": self.attribute, "value": self.value, "leaf": self.leaf, "label": self.label,
+                "label_counts": self.label_counts, "left": self.left, "right": self.right}
 
-    def __dir__(self) :
-        return {"attribute":self.attribute,"value":self.value,"leaf":self.leaf,"label":self.label,"label_counts":self.label_counts,"left":self.left,"right":self.right}
+    def __dir__(self):
+        return {"attribute": self.attribute, "value": self.value, "leaf": self.leaf, "label": self.label,
+                "label_counts": self.label_counts, "left": self.left, "right": self.right}
