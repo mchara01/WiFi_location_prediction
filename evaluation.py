@@ -1,6 +1,6 @@
 import numpy as np
 
-from decision_tree import decision_tree
+from decision_tree import DecisionTree
 from dataset import *
 
 
@@ -42,7 +42,7 @@ def cross_validation(x, y, k_folds):
         y_train = y[train_idx]
 
         # Training the decision tree
-        k_decision_tree = decision_tree()
+        k_decision_tree = DecisionTree()
         data_tree, data_depth = k_decision_tree.train(x_train, y_train)
 
         # Predict the label and evaluate performance
@@ -75,7 +75,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             x_val = x[val_indices]
             y_val = y[val_indices]
 
-            current_decision_tree = decision_tree()
+            current_decision_tree = DecisionTree()
             data_tree, data_depth = current_decision_tree.train(x_train, y_train)
 
             pruning_simulation(current_decision_tree, x_val, y_val)
@@ -108,8 +108,6 @@ def pruning_simulation(current_decision_tree, x, y):
             orig_val = evaluate(y, y_predict)
             left_counts = current_node.left.label_counts
             right_counts = current_node.right.label_counts
-            label = None
-            label_count = None
             if left_counts > right_counts:
                 label = current_node.left.label
                 label_count = current_node.left.label_counts

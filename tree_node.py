@@ -28,8 +28,7 @@ class TreeNode:
         self.label_counts = node.label_counts
 
     def clone(self):
-        return TreeNode(self.parent_node, self.attribute, self.value, self.left, self.right, self.leaf, self.label,
-                         self.label_counts)
+        return TreeNode(self.parent_node, self.attribute, self.value, self.left, self.right, self.leaf, self.label, self.label_counts)
 
     def __repr__(self):
         return str({"attribute": self.attribute, "value": self.value, "leaf": self.leaf, "label": self.label,

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from evaluation import *
 from dataset import Dataset
-from decision_tree import decision_tree
+from decision_tree import DecisionTree
 
 # CONSTANTS DECLARATION
 clean_dataset_file_path = "wifi_db/clean_dataset.txt"
@@ -57,10 +57,10 @@ if __name__ == "__main__":
 
     # PART 2 - Plot
     print("Building Clean Decision Tree")
-    clean_decision_tree = decision_tree()
+    clean_decision_tree = DecisionTree()
     clean_decision_tree.train(x_clean, y_clean)
     print("Step 2 (Bonus) - Plotting Decision Tree")
-    clean_decision_tree.plottree()
+    clean_decision_tree.plot_tree()
     plt.xticks(np.arange(-100.0, 100.0, 1.0))
     fig = plt.gcf()
     fig.set_size_inches(300, 50)

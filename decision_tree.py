@@ -1,13 +1,17 @@
+"""
+The Decision Tree module contains any method required to
+develop this Machine Learning model in a supervised learning
+fashion.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
 from tree_node import TreeNode
 
 
-class decision_tree:
+class DecisionTree:
     def __init__(self):
-        """init of decision tree 
-        """
+        """Initialisation of DecisionTree class object parameters."""
         self.root_node = None
         self.depth = None
 
@@ -21,7 +25,7 @@ class decision_tree:
         Returns:
             [type]: [description]
         """
-        self.root_node, self.depth = decision_tree.decision_tree_learning(x_train, y_train, 0)
+        self.root_node, self.depth = DecisionTree.decision_tree_learning(self, x_train, y_train, 0)
         return self.root_node, self.depth
 
     def predict(self, x_test):
@@ -55,7 +59,7 @@ class decision_tree:
 
         return y_predict
 
-    def find_entropy(y_train):
+    def find_entropy(self, y_train):
         """Calculates the entropy of a given label set
 
         Args:
@@ -73,7 +77,7 @@ class decision_tree:
             sum_total -= (probability * log_value)
         return sum_total
 
-    def find_information_gain(entropy, y_subset_left, y_subset_right):
+    def find_information_gain(self, entropy, y_subset_left, y_subset_right):
         """[summary]
 
         Args:
@@ -85,15 +89,15 @@ class decision_tree:
             [type]: [description]
         """
         # calculate left subsets and right subsets entropy 
-        left_Entropy = decision_tree.find_entropy(y_subset_left)
-        right_entropy = decision_tree.find_entropy(y_subset_right)
+        left_entropy = DecisionTree.find_entropy(self, y_subset_left)
+        right_entropy = DecisionTree.find_entropy(self, y_subset_right)
         total_y = y_subset_left.shape[0] + y_subset_right.shape[0]
-        left = (float(y_subset_left.shape[0]) / total_y) * left_Entropy
+        left = (float(y_subset_left.shape[0]) / total_y) * left_entropy
         right = (float(y_subset_right.shape[0]) / total_y) * right_entropy
         return entropy - (left + right)
 
-    def find_split(x_train, y_train):
-        entropy = decision_tree.find_entropy(y_train)
+    def find_split(self, x_train, y_train):
+        entropy = DecisionTree.find_entropy(y_train)
         current_best_feature_gain = None
         current_best_feature = None
         current_best_feature_split = None
@@ -122,7 +126,7 @@ class decision_tree:
                 y_train_left = y_train[left_split_idx]
                 x_train_right = x_train[right_split_idx]
                 y_train_right = y_train[right_split_idx]
-                gain = decision_tree.find_information_gain(entropy, y_train_left, y_train_right)
+                gain = DecisionTree.find_information_gain(entropy, y_train_left, y_train_right)
                 if current_best_gain is None or gain > current_best_gain:
                     current_best_gain = gain
                     current_best_value = split_value
@@ -147,32 +151,27 @@ class decision_tree:
                best_feature_x_train_right, \
                best_feature_y_train_right
 
-    def decision_tree_learning(x_train, y_train, depth):
-        # if all samples from same labels then stop
-        # if y_train.shape[0] < 2:
-        #     return tree_node(None,None,True,y_train[0]),depth
+    def decision_tree_learning(self, x_train, y_train, depth):
         first_label = y_train[0]
         if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
             return TreeNode(None, None, None, None, True, first_label, y_train[0]), depth
-        # else 
         else:
             # find split of the node
             feature, split_value, \
             x_train_left, y_train_left, \
-            x_train_right, y_train_right = decision_tree.find_split(x_train, y_train)
+            x_train_right, y_train_right = DecisionTree.find_split(self, x_train, y_train)
 
             # create node with the split 
             node = TreeNode(feature, split_value, None, None, False, None, None)
             # find the left branch recursively
-            node.left, left_depth = decision_tree.decision_tree_learning(x_train_left, y_train_left, depth + 1)
+            node.left, left_depth = DecisionTree.decision_tree_learning(self, x_train_left, y_train_left, depth + 1)
             # find the right branch recursively
-            node.right, right_depth = decision_tree.decision_tree_learning(x_train_right, y_train_right, depth + 1)
+            node.right, right_depth = DecisionTree.decision_tree_learning(self, x_train_right, y_train_right, depth + 1)
             # return node and max depth of the two branches 
             return node, max(left_depth, right_depth)
 
-    def plottree(self, node=None, x=0, y=0, width=100.0):
+    def plot_tree(self, node=None, x=0, y=0, width=100.0):
         depth_dist = 20
-        tree_coords = []
 
         # if starting the plot, node = root node
         if node is None:
@@ -196,11 +195,11 @@ class decision_tree:
 
             # plot left side recursively
             plt.plot([x, xl], [y, yl])
-            self.plottree(node.left, xl, yl, width / 2)
+            self.plot_tree(node.left, xl, yl, width / 2)
 
             # plot right child node recursively
             plt.plot([x, xr], [y, yr])
-            self.plottree(node.right, xr, yr, width / 2)
+            self.plot_tree(node.right, xr, yr, width / 2)
 
         # if leaf node reached, end of recursion.
         if node.leaf:
