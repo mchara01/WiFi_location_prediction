@@ -25,7 +25,7 @@ def cross_validation(x, y, k_folds):
         list, list: Two lists of length k_folds. One is for every confusion matrix from a fold and the other is
             depth of the decision tree from each fold
     """
-    indices_list = Dataset.k_fold_indices(k_folds, len(x))
+    indices_list = k_fold_indices(k_folds, len(x))
 
     # Initialise the list that will store the: (i) confusion matrix from each fold (ii) depth of the decision tree from each fold
     result_dt, depth = list()
@@ -71,7 +71,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
         list, list: Two lists of length k_folds. One is for every confusion matrix from a fold and the other is
             depth of the decision tree from each fold
     """
-    indices_list = Dataset.nested_k_fold_indices(outer_fold, inner_fold, len(x))
+    indices_list = nested_k_fold_indices(outer_fold, inner_fold, len(x))
     result_dt, depth = list()
 
     for k in indices_list:
@@ -90,7 +90,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             y_val = y[val_indices]
 
             current_decision_tree = DecisionTree()
-            data_tree, data_depth = current_decision_tree.train(x_train, y_train)
+            current_decision_tree.train(x_train, y_train)
 
             pruning_simulation(current_decision_tree, x_val, y_val)
             y_predict = current_decision_tree.predict(x_val)
@@ -207,29 +207,29 @@ def evaluate(y_test, y_predict):
 
 
 # Evaluation Metric 2(ii): Accuracy using confusion matrix
-def accuracy_cm(confusionmatrix):
+def accuracy_cm(confusion_matrix):
     """ Compute the accuracy given the ground truth and predictions
 
     Args:
-        confusionmatrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
+        confusion_matrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
         Rows are ground truth per class, columns are predictions
 
     Returns:
         float : the accuracy
     """
-    if np.sum(confusionmatrix) > 0:
-        return np.sum(np.diag(confusionmatrix)) / np.sum(confusionmatrix)
+    if np.sum(confusion_matrix) > 0:
+        return np.sum(np.diag(confusion_matrix)) / np.sum(confusion_matrix)
     else:
         return 0.
 
 
 # Evaluation Metric 3: Precision
-def precision(confusionmatrix):
+def precision(confusion_matrix):
     """ Compute the precision score per class, as well as the macro-averaged precision
     given a confusion matrix. 
         
     Args:
-        confusionmatrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
+        confusion_matrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
         Rows are ground truth per class, columns are predictions
 
     Returns:
@@ -238,10 +238,10 @@ def precision(confusionmatrix):
             - macro-precision: a float of the macro-averaged precision 
     """
     # Precision Score per Class
-    precision = np.zeros((len(confusionmatrix),))
-    for c in range(confusionmatrix.shape[0]):
-        if np.sum(confusionmatrix[:, c]) > 0:
-            precision[c] = confusionmatrix[c, c] / np.sum(confusionmatrix[:, c])
+    precision = np.zeros((len(confusion_matrix),))
+    for c in range(confusion_matrix.shape[0]):
+        if np.sum(confusion_matrix[:, c]) > 0:
+            precision[c] = confusion_matrix[c, c] / np.sum(confusion_matrix[:, c])
 
             # Macro-averaged precision
     macro_precision = 0.
@@ -252,12 +252,12 @@ def precision(confusionmatrix):
 
 
 # Evaluation Metric 4: Recall
-def recall(confusionmatrix):
+def recall(confusion_matrix):
     """ Computes the recall score per class, as well as the macro-averaged recall
     given a confusion matrix. 
         
     Args:
-        confusionmatrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
+        confusion_matrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
         Rows are ground truth per class, columns are predictions.
 
     Returns:
@@ -267,10 +267,10 @@ def recall(confusionmatrix):
     """
 
     # Recall score per class
-    recall = np.zeros((len(confusionmatrix),))
-    for c in range(confusionmatrix.shape[0]):
-        if np.sum(confusionmatrix[c, :]) > 0:
-            recall[c] = confusionmatrix[c, c] / np.sum(confusionmatrix[c, :])
+    recall = np.zeros((len(confusion_matrix),))
+    for c in range(confusion_matrix.shape[0]):
+        if np.sum(confusion_matrix[c, :]) > 0:
+            recall[c] = confusion_matrix[c, c] / np.sum(confusion_matrix[c, :])
 
     # Macro-averaged recall
     macro_recall = 0.
@@ -281,12 +281,12 @@ def recall(confusionmatrix):
 
 
 # Evaluation Metric 5: F1-Score
-def f1_score(confusionmatrix):
+def f1_score(confusion_matrix):
     """ Compute the F1-score per class, as well as the macro-averaged F1-score 
     given a confusion matrix.
         
     Args:
-        confusionmatrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
+        confusion_matrix (np.ndarray): an array of shape (C, C), where C is the number of classes. 
         Rows are ground truth per class, columns are predictions.
 
     Returns:
@@ -296,8 +296,8 @@ def f1_score(confusionmatrix):
     """
 
     # Get the precision and recall 
-    (precisions, macro_p) = precision(confusionmatrix)
-    (recalls, macro_r) = recall(confusionmatrix)
+    (precisions, macro_p) = precision(confusion_matrix)
+    (recalls, macro_r) = recall(confusion_matrix)
 
     # Ensure precision and recall are of same length
     assert len(precisions) == len(recalls)

@@ -25,13 +25,9 @@ class DecisionTree:
         Args:
             x_train (np.array): Features of the dataset
             y_train (np.array): Labels of the dataset
-
-        Returns:
-            TreeNode, int: A TreeNode Object representing the root of the tree and its depth.
         """
         # Train recursively the DecisionTree object
         self.root_node, self.depth = DecisionTree.decision_tree_learning(self, x_train, y_train, 0)
-        return self.root_node, self.depth
 
     def predict(self, x_test):
         """Function takes a set of attributes and predicts their corresponding labels.
@@ -189,10 +185,10 @@ class DecisionTree:
                 best_feature_y_train_right = best_y_train_right
 
         return current_best_feature, current_best_feature_split, \
-               best_feature_x_train_left, \
-               best_feature_y_train_left, \
-               best_feature_x_train_right, \
-               best_feature_y_train_right
+            best_feature_x_train_left, \
+            best_feature_y_train_left, \
+            best_feature_x_train_right, \
+            best_feature_y_train_right
 
     def decision_tree_learning(self, x_train, y_train, depth):
         """Recursive creation of Decision Trees.

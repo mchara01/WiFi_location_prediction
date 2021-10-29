@@ -7,7 +7,7 @@ import os
 import matplotlib.pyplot as plt
 
 from evaluation import *
-from dataset import Dataset
+from dataset import *
 from decision_tree import DecisionTree
 
 # CONSTANTS DECLARATION
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     x_clean, y_clean, classes_clean = None, None, None
     if os.path.isfile(CLEAN_DATASET_FILE_PATH):  # Check if dataset exists
         # Read the clean dataset and split it into training and testing subsets
-        x_clean, y_clean, classes_clean = Dataset.read_dataset(CLEAN_DATASET_FILE_PATH)
+        x_clean, y_clean, classes_clean = read_dataset(CLEAN_DATASET_FILE_PATH)
     else:
         print("Clean dataset does not exist.")
         print("Exiting...")
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     x_noise, y_noise, classes_noise = None, None, None
     if os.path.isfile(NOISE_DATASET_FILE_PATH):
         # Read the noisy dataset and split it into training and testing subsets
-        x_noise, y_noise, classes_noise = Dataset.read_dataset(NOISE_DATASET_FILE_PATH)
+        x_noise, y_noise, classes_noise = read_dataset(NOISE_DATASET_FILE_PATH)
     else:
         print("Noisy dataset does not exist.")
         print("Exiting...")
