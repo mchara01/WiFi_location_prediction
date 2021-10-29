@@ -1,5 +1,7 @@
 """
-
+The evaluation module contains the implementation of all metrics used
+during evaluation (accuracy, confusion matrix, precision, recall, f1-score)
+and pruning.
 """
 import numpy as np
 
@@ -8,7 +10,7 @@ from dataset import *
 
 
 def cross_validation(x, y, k_folds):
-    """ Step 3 - Evaluation with simple cross validation.
+    """Step 3 - Evaluation with simple cross validation.
     
     Computes and appends the confusion matrix generated from each fold.
     At each fold, the function trains the decision tree with training data.
@@ -42,7 +44,6 @@ def cross_validation(x, y, k_folds):
 
         # Training the decision tree
         k_decision_tree = DecisionTree()
-        # FIXME
         k_decision_tree.train(x_train, y_train)
 
         # Predict the label and evaluate performance
@@ -56,8 +57,20 @@ def cross_validation(x, y, k_folds):
     return result_dt, depth
 
 
-# Step 4 - Pruning with Nested Cross-Validation
 def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
+    """Step 4 - Pruning with Nested Cross-Validation.
+
+
+    Args:
+        x (np.ndarray): Test dataset label
+        y (np.ndarray): Predicted label
+        outer_fold (int): Number of folds
+        inner_fold (int):
+
+    Returns:
+        list, list: Two lists of length k_folds. One is for every confusion matrix from a fold and the other is
+            depth of the decision tree from each fold
+    """
     indices_list = Dataset.nested_k_fold_indices(outer_fold, inner_fold, len(x))
     result_dt, depth = list()
 
@@ -99,11 +112,14 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
 
 
 def pruning_simulation(current_decision_tree, x, y):
+    # Initialise a queue and append to it the root node of given DT
     queue = list()
     queue.append(current_decision_tree.root_node)
-
+    # While queue is not empty
     while queue:
+        # Remove and return item at index 0
         current_node = queue.pop(0)
+        # Check only nodes directly connected to two leaves
         if current_node.left.leaf and current_node.right.leaf:
             y_predict = current_decision_tree.predict(x)
             orig_val = evaluate(y, y_predict)
@@ -116,12 +132,14 @@ def pruning_simulation(current_decision_tree, x, y):
                 label = current_node.right.label
                 label_count = current_node.right.label_counts
             tmp_orig_node = current_node.clone()
+            # FIXME
             orig_val.convert_leaf(label, label_count)
             y_predict_pruned = current_decision_tree.predict(x)
             pruned_val = evaluate(y, y_predict_pruned)
 
             if orig_val > pruned_val:
                 current_node.change_attribute(tmp_orig_node)
+        # If not directly connected to two leaves, append its left and right child
         else:
             if current_node.left.leaf:
                 queue.append(current_node.left)
