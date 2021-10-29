@@ -1,7 +1,7 @@
 """
 The Decision Tree module contains any method required to
-develop this Machine Learning model in a supervised learning
-fashion.
+develop this Machine Learning model in a eager, supervised
+learning fashion.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,21 +10,25 @@ from tree_node import TreeNode
 
 
 class DecisionTree:
+
     def __init__(self):
         """Initialisation of DecisionTree class object parameters."""
         self.root_node = None
         self.depth = None
 
     def train(self, x_train, y_train):
-        """[summary]
+        """ Training of the Decision Tree.
+
+        Training of the Decision Tree using the given training features(x_train) and labels(y_train) of the dataset.
 
         Args:
-            x_train ([type]): [description]
-            y_train ([type]): [description]
+            x_train (np.array): Features of the dataset
+            y_train (np.array): Labels of the dataset
 
         Returns:
-            [type]: [description]
+            TreeNode, int: A TreeNode Object representing the root of the tree and its depth.
         """
+        # Train recursively the DecisionTree object
         self.root_node, self.depth = DecisionTree.decision_tree_learning(self, x_train, y_train, 0)
         return self.root_node, self.depth
 
@@ -32,7 +36,7 @@ class DecisionTree:
         """Function takes a set of attributes and predicts their corresponding labels.
 
         Args:
-            x_test (array): An array of attributes for each dataset
+            x_test (np.array): An array of attributes for each dataset
         
         Returns:
             y_predict (array): An array of labels predicted by the model for the inputted attributes.
@@ -97,7 +101,7 @@ class DecisionTree:
         return entropy - (left + right)
 
     def find_split(self, x_train, y_train):
-        entropy = DecisionTree.find_entropy(y_train)
+        entropy = DecisionTree.find_entropy(self, y_train)
         current_best_feature_gain = None
         current_best_feature = None
         current_best_feature_split = None
@@ -144,22 +148,29 @@ class DecisionTree:
                 best_feature_x_train_right = best_x_train_right
                 best_feature_y_train_right = best_y_train_right
 
-        return current_best_feature, \
-               current_best_feature_split, \
-               best_feature_x_train_left, \
+        return current_best_feature, current_best_feature_split, best_feature_x_train_left, \
                best_feature_y_train_left, \
                best_feature_x_train_right, \
                best_feature_y_train_right
 
     def decision_tree_learning(self, x_train, y_train, depth):
+        """[summary]
+
+        Args:
+            x_train ([type]): [description]
+            y_train ([type]): [description]
+            depth ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         first_label = y_train[0]
         if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
             return TreeNode(None, None, None, None, True, first_label, y_train[0]), depth
         else:
             # find split of the node
-            feature, split_value, \
-            x_train_left, y_train_left, \
-            x_train_right, y_train_right = DecisionTree.find_split(self, x_train, y_train)
+            feature, split_value, x_train_left, y_train_left, x_train_right, y_train_right = DecisionTree.find_split(
+                self, x_train, y_train)
 
             # create node with the split 
             node = TreeNode(feature, split_value, None, None, False, None, None)

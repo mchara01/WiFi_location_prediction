@@ -1,5 +1,7 @@
 """
-
+The main module of the project. Here, the other 3 modules are imported
+in order to read the data set, create a decision which will train on this
+data set and finally, evaluate the performance of this Machine Learning model.
 """
 import os
 import matplotlib.pyplot as plt
@@ -9,139 +11,123 @@ from dataset import Dataset
 from decision_tree import DecisionTree
 
 # CONSTANTS DECLARATION
-clean_dataset_file_path = "wifi_db/clean_dataset.txt"
-noise_dataset_file_path = "wifi_db/noisy_dataset.txt"
-
-
-def read_full_dt(file_path):
-    """Read a dataset.
-
-    Read a dataset from a given file path, split it into training and test samples and
-    return results with classes.
-
-    Args:
-        file_path (str): Location of the file on local storage.
-
-    Returns:
-        np.array(float), np.array(int), np.array(int): Results of the dataset spliting into x and y and their unique classes.
-    """
-    x, y, classes = Dataset.read_dataset(file_path)
-
-    return x, y, classes
-
+CLEAN_DATASET_FILE_PATH = "wifi_db/clean_dataset.txt"
+NOISE_DATASET_FILE_PATH = "wifi_db/noisy_dataset.txt"
+OUTER_FOLD = 10
+INNER_FOLD = 10
 
 # Main entry point to our Decision Tree prediction program.
 if __name__ == "__main__":
-    outer_fold = 10
-    inner_fold = 10
 
-    #  Read a clean dataset and split it into training and testing subsets
     x_clean, y_clean, classes_clean = None, None, None
-    if os.path.isfile(clean_dataset_file_path):
-        x_clean, y_clean, classes_clean = read_full_dt(clean_dataset_file_path)
-
+    if os.path.isfile(CLEAN_DATASET_FILE_PATH):  # Check if dataset exists
+        # Read the clean dataset and split it into training and testing subsets
+        x_clean, y_clean, classes_clean = Dataset.read_dataset(CLEAN_DATASET_FILE_PATH)
     else:
-        print("File 1 does not exist.")
+        print("Clean dataset does not exist.")
         print("Exiting...")
         exit(0)
 
-    #  Read clean dataset and split into training and testing
     x_noise, y_noise, classes_noise = None, None, None
-    if os.path.isfile(clean_dataset_file_path):
-        x_noise, y_noise, classes_noise = read_full_dt(noise_dataset_file_path)
-
+    if os.path.isfile(NOISE_DATASET_FILE_PATH):
+        # Read the noisy dataset and split it into training and testing subsets
+        x_noise, y_noise, classes_noise = Dataset.read_dataset(NOISE_DATASET_FILE_PATH)
     else:
-        print("File 1 does not exist.")
+        print("Noisy dataset does not exist.")
         print("Exiting...")
         exit(0)
 
-    # PART 2 - Plot
-    print("Building Clean Decision Tree")
+    # PART 2 - Plot (BONUS)
+    print("Step 2 (Bonus) - Plotting Decision Tree")
+    print("Building Clean Decision Tree...")
+    # Create Decision Tree and train it
     clean_decision_tree = DecisionTree()
     clean_decision_tree.train(x_clean, y_clean)
-    print("Step 2 (Bonus) - Plotting Decision Tree")
+    # Plot the Decision Tree, display it and save it
     clean_decision_tree.plot_tree()
     plt.xticks(np.arange(-100.0, 100.0, 1.0))
     fig = plt.gcf()
     fig.set_size_inches(300, 50)
-    fig.savefig('test2png.png', dpi=100)
+    fig.savefig('dt_bonus.png', dpi=100)
     plt.show()
 
-    # PART 3 - Evaluate
+    # PART 3 - Evaluation
     print("Step 3 - Evaluation")
     # 3(i): Clean Dataset
     print("Evaluating clean dataset...")
     # Run the cross validation and obtain the list of confusion matrix and tree depth from each fold
-    clean_confusionmatrix, clean_depth = cross_validation(x_clean, y_clean, outer_fold)
-    print("Confusion Matrix of all folds")
-    print(clean_confusionmatrix)
+    clean_confusion_matrix, clean_depth = cross_validation(x_clean, y_clean, OUTER_FOLD)
+    print("Confusion Matrix of all folds on clean dataset:")
+    print(clean_confusion_matrix)
 
     # The average of all the confusion matrices
-    ave_clean_cm = np.average(clean_confusionmatrix, axis=0)
-    print("Average confusion matrix")
-    print(ave_clean_cm)
+    average_clean_cm = np.average(clean_confusion_matrix, axis=0)
+    print("Average confusion matrix: ")
+    print(average_clean_cm)
 
     # Average accuracy 
-    accuracy_clean = accuracy_cm(ave_clean_cm)
-    print("Accuracy on clean dataset:", accuracy_clean)
+    accuracy_clean = accuracy_cm(average_clean_cm)
+    print("Accuracy on clean dataset: ", accuracy_clean)
 
     # Recall 
-    recall_clean = recall(ave_clean_cm)
-    print("Recall on clean dataset:", recall_clean)
+    recall_clean = recall(average_clean_cm)
+    print("Recall on clean dataset: ", recall_clean)
 
     # Precision
-    precision_clean = precision(ave_clean_cm)
-    print("Precision on clean dataset:", precision_clean)
+    precision_clean = precision(average_clean_cm)
+    print("Precision on clean dataset: ", precision_clean)
 
     # F1-Score
-    f1_clean = f1_score(ave_clean_cm)
-    print("F1-Score on clean dataset:", f1_clean)
+    f1_clean = f1_score(average_clean_cm)
+    print("F1-Score on clean dataset: ", f1_clean)
 
     # Tree-Depth
     ave_depth_clean = np.average(clean_depth)
-    print("Average tree depth on clean dataset:", ave_depth_clean)
+    print("Average tree depth on clean dataset: ", ave_depth_clean)
+
     print()
 
     # 3(ii): Noisy Dataset
     print("Evaluating noisy dataset...")
-    # Run the cross validation and obtain the list of confusion matrix from each fold
-    noisy_confusionmatrix, noisy_depth = cross_validation(x_noise, y_noise, outer_fold)
-    print("Confusion Matrix of all folds")
-    print(noisy_confusionmatrix)
+    # Run the cross validation and obtain the list of confusion matrices from each fold
+    noisy_confusion_matrix, noisy_depth = cross_validation(x_noise, y_noise, OUTER_FOLD)
+    print("Confusion Matrix of all folds on noisy dataset:")
+    print(noisy_confusion_matrix)
 
     # The average of all the confusion matrices
-    ave_noisy_cm = np.average(noisy_confusionmatrix, axis=0)
-    print("Average confusion matrix")
+    ave_noisy_cm = np.average(noisy_confusion_matrix, axis=0)
+    print("Average confusion matrix:")
     print(ave_noisy_cm)
 
     # Average accuracy 
     accuracy_noise = accuracy_cm(ave_noisy_cm)
-    print("Accuracy on noisy dataset:", accuracy_noise)
+    print("Accuracy on noisy dataset: ", accuracy_noise)
 
     # Recall 
     recall_noise = recall(ave_noisy_cm)
-    print("Recall on noisy dataset:", recall_noise)
+    print("Recall on noisy dataset: ", recall_noise)
 
     # Precision
     precision_noise = precision(ave_noisy_cm)
-    print("Precision on noisy dataset:", precision_noise)
+    print("Precision on noisy dataset: ", precision_noise)
 
     # F1-Score
     f1_noise = f1_score(ave_noisy_cm)
-    print("F1-Score on noisy dataset:", f1_noise)
+    print("F1-Score on noisy dataset: ", f1_noise)
 
     # Tree-Depth
-    ave_depth_noisy = np.average(noisy_depth)
-    print("Average tree depth on noisy dataset:", ave_depth_noisy)
+    average_depth_noisy = np.average(noisy_depth)
+    print("Average tree depth on noisy dataset: ", average_depth_noisy)
+    
     print()
 
     # PART 4 - Pruning (and Evaluation)
     print("Step 4: Pruning (and Evaluation)")
+
     # 4(i): Clean Dataset
     print("Pruning clean dataset...")
-
     # Run the pruning and nested cross validation, and obtain the list of tree depth and confusion matrix from each fold
-    clean_pruned_cm, clean_pruned_depth = pruning_nested_cross_validation(x_clean, y_clean, outer_fold, inner_fold)
+    clean_pruned_cm, clean_pruned_depth = pruning_nested_cross_validation(x_clean, y_clean, OUTER_FOLD, INNER_FOLD)
 
     print("Confusion Matrix of all folds")
     print(clean_pruned_cm)
@@ -176,7 +162,7 @@ if __name__ == "__main__":
     print("Pruning noisy dataset...")
 
     # Run the pruning and nested cross validation, and obtain the list of confusion matrix from each fold
-    noisy_pruned_cm, noisy_pruned_depth = pruning_nested_cross_validation(x_noise, y_noise, outer_fold, inner_fold)
+    noisy_pruned_cm, noisy_pruned_depth = pruning_nested_cross_validation(x_noise, y_noise, OUTER_FOLD, INNER_FOLD)
 
     print("Confusion Matrix of all folds")
     print(noisy_pruned_cm)
@@ -203,6 +189,6 @@ if __name__ == "__main__":
     print("F1-Score on noisy dataset:", f1_noisy_pruned)
 
     # Tree-Depth
-    ave_depth_noisy_pruned = np.average(noisy_pruned_depth)
-    print("Average tree depth on noisy dataset:", ave_depth_noisy_pruned)
+    average_depth_noisy_pruned = np.average(noisy_pruned_depth)
+    print("Average tree depth on noisy dataset:", average_depth_noisy_pruned)
     print()

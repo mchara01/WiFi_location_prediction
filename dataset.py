@@ -1,22 +1,22 @@
 """
-In this module we can find all dataset-related methods which are
-imported in other modules of this project.
+This module contains all implementations of dataset-related methods,
+such as reading, splitting and cross-validating which are imported
+in other modules of this project.
 """
 import numpy as np
 
 from numpy.random import default_rng
 
 
-def visualize_k_fold():
-    """ Function prints the nested k-fold cross validation indices into terminal. """
-
-    for index, outer_fold in enumerate(Dataset.nested_k_fold_indices(10, 10, 30)):
-        print("K:", index + 1)
-        print("Test:", outer_fold[0])
-
-        for inner_fold in outer_fold[1]:
-            print("Train:", inner_fold[0])
-            print("Validation:", inner_fold[1])
+# def visualize_k_fold():
+#     """ Function prints the nested k-fold cross validation indices into terminal."""
+#     for index, outer_fold in enumerate(Dataset.nested_k_fold_indices(10, 10, 30)):
+#         print("K:", index + 1)
+#         print("Test:", outer_fold[0])
+#
+#         for inner_fold in outer_fold[1]:
+#             print("Train:", inner_fold[0])
+#             print("Validation:", inner_fold[1])
 
 
 class Dataset:
@@ -53,46 +53,46 @@ class Dataset:
         """ Splitting indices into k folds randomly.
 
         Args:
-            k (int): k splits
+            k (int): Number(k) of splits
             rows (int): Number of rows to split
             random_generator (np.random.Generator): A random generator
 
         Returns:
-            list: a list (length n_splits). [list1, list2, list3] that each contains the indices,
-            where list1, list2, list3 respectively contains a list of indices
+            list: a list containing k sub-lists (i.e., [list1, list2, list3] for k=3).
         """
         # Shuffle the indices
         indices = random_generator.permutation(rows)
-        # Split indices list into K sub-lists
+        # Split the shuffled indices list into K sub-lists
         k_indices = np.array_split(indices, k)
         return k_indices
 
     def k_fold_indices(self, n_folds, n_instances):
         """ Used for Step 3 - Evaluation, for cross validation.
 
-        Generates n_folds possible combinations of indices for training, testing, and validation.
+        Generates n_folds possible combinations of indices for training, validation, and testing.
         
         Args:
             n_folds (int): Number of outer folds
             n_instances (int): Total number of instances (i.e. rows of data)
 
         Returns:
-            folds (list): [ [[test1], [train1]], [[test2], [train2]], ... ,[[test_nfold], [train_nfold]] ]
+            folds (list): [ [[test1], [train1]], [[test2], [train2]], ... , [[test_nfold], [train_nfold]] ]
             1. Each row represents 1 fold.
             2. 1st element in each row: test indices.
             3. 2nd element in each row: train indices.
         """
-        # Initialise folds variable
+        # Initialise folds list
         folds = list()
 
         # Split the dataset into n_folds
         split_indices = Dataset.k_indices_split(self, n_folds, n_instances)
 
+        # Iterate through the n_folds
         for k in range(n_folds):
             # Pick k as test dataset
             test_indices = split_indices[k]
 
-            # Remaining folds will belong to the training dataset
+            # Remaining (n_folds - n_instances) folds will belong to the training dataset
             training_indices = np.hstack(split_indices[:k] + split_indices[k + 1:])
 
             # Append into folds
@@ -115,12 +115,11 @@ class Dataset:
             [[test1, [ [[train1 indices], [val1 indices]], [[train2 indices],[val2 indices]], ... ],
             [test2, [ [[train1 indices], [val1 indices]], [[train2 indices],[val2 indices]], ... ],
             ... ]
-
             1. Each row represents the outer fold.
             2. 1st element in each row: test indices
             3. 2nd element in each row: appended list indices for each of the inner folds in this layer.
         """
-        # Initialise 
+        # Initialise folds list
         folds = list()
 
         # Split the dataset into n_outer_folds
@@ -135,12 +134,15 @@ class Dataset:
             inner_split_indices = Dataset.k_indices_split(self, n_inner_folds, len(remaining_indices))
 
             # Generate indices to split the remaining dataset into training and validation sets
-            inner_fold = []
+            inner_fold = list()
             for j in range(n_inner_folds):
+                # Get the validation subset
                 val_indices = remaining_indices[inner_split_indices[j]]
+                # Calculate remaining rows
                 train_intermediate_idx = np.hstack(inner_split_indices[:j] + inner_split_indices[j + 1:])
+                # Get the train subset
                 train_indices = remaining_indices[train_intermediate_idx]
-
+                # Append the training and validation indices list
                 inner_fold.append([train_indices, val_indices])
 
             folds.append([test_indices, inner_fold])

@@ -1,6 +1,12 @@
+"""
+The TreeNode object implementation.
+"""
+
+
 class TreeNode:
 
     def __init__(self, attribute, value, left, right, leaf, label, label_counts):
+        """Initialisation of TreeNode object parameters"""
         self.attribute = attribute
         self.value = value
         self.left = left
@@ -9,16 +15,34 @@ class TreeNode:
         self.label = label
         self.label_counts = label_counts
 
-    def set_leaf(self, label, label_counts):
-        self.attribute = None
-        self.value = None
-        self.left = None
-        self.right = None
-        self.leaf = True
-        self.label = label
-        self.label_counts = label_counts
+    # def set_leaf(self, label, label_counts):
+    #     """Set a TreeNode object as a leaf.
+    #
+    #     This function set the calling TreeNode object as a leaf. This is done
+    #     by nullifying (making None) all of its parameters besides the label and
+    #     the label_counts
+    #
+    #      Args:
+    #         label ([type]): [description]
+    #         label_counts ([type]): [description]
+    #
+    #     Returns:
+    #         [type]: [description]
+    #     """
+    #     self.attribute = None
+    #     self.value = None
+    #     self.left = None
+    #     self.right = None
+    #     self.leaf = True
+    #     self.label = label
+    #     self.label_counts = label_counts
 
     def change_attribute(self, node):
+        """Copy attributes from a given node.
+
+        Args:
+            node (TreeNode): The node from which the calling node will copy the parameters from
+        """
         self.attribute = node.attribute
         self.value = node.value
         self.left = node.left
