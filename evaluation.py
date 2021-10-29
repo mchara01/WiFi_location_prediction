@@ -28,7 +28,7 @@ def cross_validation(x, y, k_folds):
     indices_list = k_fold_indices(k_folds, len(x))
 
     # Initialise the list that will store the: (i) confusion matrix from each fold (ii) depth of the decision tree from each fold
-    result_dt, depth = list()
+    result_dt, depth = list(), list()
 
     # Iterate through each fold
     for k in indices_list:
@@ -72,7 +72,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             depth of the decision tree from each fold
     """
     indices_list = nested_k_fold_indices(outer_fold, inner_fold, len(x))
-    result_dt, depth = list()
+    result_dt, depth = list(), list()
 
     for k in indices_list:
         test_idx = k[0]

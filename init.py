@@ -49,7 +49,7 @@ if __name__ == "__main__":
     fig = plt.gcf()
     fig.set_size_inches(300, 50)
     fig.savefig('dt_bonus.png', dpi=100)
-    plt.show()
+    # plt.show()
 
     # PART 3 - Evaluation
     print("Step 3 - Evaluation")
