@@ -28,7 +28,7 @@ def cross_validation(x, y, k_folds):
     indices_list = k_fold_indices(k_folds, len(x))
 
     # Initialise the list that will store the: (i) confusion matrix from each fold (ii) depth of the decision tree from each fold
-    result_dt, depth = list()
+    result_dt, depth = list(), list()
 
     # Iterate through each fold
     for k in indices_list:
@@ -72,7 +72,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             depth of the decision tree from each fold
     """
     indices_list = nested_k_fold_indices(outer_fold, inner_fold, len(x))
-    result_dt, depth = list()
+    result_dt, depth = list(),list()
 
     for k in indices_list:
         test_idx = k[0]
@@ -133,7 +133,7 @@ def pruning_simulation(current_decision_tree, x, y):
                 label_count = current_node.right.label_counts
             tmp_orig_node = current_node.clone()
             # FIXME
-            orig_val.convert_leaf(label, label_count)
+            current_node.set_leaf(label, label_count)
             y_predict_pruned = current_decision_tree.predict(x)
             pruned_val = evaluate(y, y_predict_pruned)
 
@@ -141,9 +141,9 @@ def pruning_simulation(current_decision_tree, x, y):
                 current_node.change_attribute(tmp_orig_node)
         # If not directly connected to two leaves, append its left and right child
         else:
-            if current_node.left.leaf:
+            if not current_node.left.leaf:
                 queue.append(current_node.left)
-            if current_node.right.leaf:
+            if not current_node.right.leaf:
                 queue.append(current_node.right)
 
 

@@ -42,14 +42,14 @@ if __name__ == "__main__":
     print("Building Clean Decision Tree...")
     # Create Decision Tree and train it
     clean_decision_tree = DecisionTree()
-    clean_decision_tree.train(x_clean, y_clean)
+    clean_decision_tree.train(x_noise, y_noise)
     # Plot the Decision Tree, display it and save it
     clean_decision_tree.plot_tree()
     plt.xticks(np.arange(-100.0, 100.0, 1.0))
     fig = plt.gcf()
     fig.set_size_inches(300, 50)
     fig.savefig('dt_bonus.png', dpi=100)
-    plt.show()
+    # plt.show()
 
     # PART 3 - Evaluation
     print("Step 3 - Evaluation")
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     # PART 4 - Pruning (and Evaluation)
     print("Step 4: Pruning (and Evaluation)")
 
-    # 4(i): Clean Dataset
+    #4(i): Clean Dataset
     print("Pruning clean dataset...")
     # Run the pruning and nested cross validation, and obtain the list of tree depth and confusion matrix from each fold
     clean_pruned_cm, clean_pruned_depth = pruning_nested_cross_validation(x_clean, y_clean, OUTER_FOLD, INNER_FOLD)
@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     # Tree-Depth
     ave_depth_clean_pruned = np.average(clean_pruned_depth)
-    print("Average tree depth on noisy dataset:", ave_depth_clean_pruned)
+    print("Average tree depth on clean dataset:", ave_depth_clean_pruned)
     print()
 
     # 4(ii): Noisy Dataset

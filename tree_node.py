@@ -15,27 +15,27 @@ class TreeNode:
         self.label = label
         self.label_counts = label_counts
 
-    # def set_leaf(self, label, label_counts):
-    #     """Set a TreeNode object as a leaf.
-    #
-    #     This function set the calling TreeNode object as a leaf. This is done
-    #     by nullifying (making None) all of its parameters besides the label and
-    #     the label_counts
-    #
-    #      Args:
-    #         label ([type]): [description]
-    #         label_counts ([type]): [description]
-    #
-    #     Returns:
-    #         [type]: [description]
-    #     """
-    #     self.attribute = None
-    #     self.value = None
-    #     self.left = None
-    #     self.right = None
-    #     self.leaf = True
-    #     self.label = label
-    #     self.label_counts = label_counts
+    def set_leaf(self, label, label_counts):
+        """Set a TreeNode object as a leaf.
+    
+        This function set the calling TreeNode object as a leaf. This is done
+        by nullifying (making None) all of its parameters besides the label and
+        the label_counts
+    
+         Args:
+            label ([type]): [description]
+            label_counts ([type]): [description]
+    
+        Returns:
+            [type]: [description]
+        """
+        self.attribute = None
+        self.value = None
+        self.left = None
+        self.right = None
+        self.leaf = True
+        self.label = label
+        self.label_counts = label_counts
 
     def change_attribute(self, node):
         """Copy attributes from a given node.
@@ -52,7 +52,7 @@ class TreeNode:
         self.label_counts = node.label_counts
 
     def clone(self):
-        return TreeNode(self.parent_node, self.attribute, self.value, self.left, self.right, self.leaf, self.label, self.label_counts)
+        return TreeNode( self.attribute, self.value, self.left, self.right, self.leaf, self.label, self.label_counts)
 
     def __repr__(self):
         return str({"attribute": self.attribute, "value": self.value, "leaf": self.leaf, "label": self.label,
