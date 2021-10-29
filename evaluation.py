@@ -1,35 +1,34 @@
+"""
+
+"""
 import numpy as np
 
 from decision_tree import DecisionTree
 from dataset import *
 
 
-# Step 3 - Evaluation with simple cross validation
 def cross_validation(x, y, k_folds):
-    """
+    """ Step 3 - Evaluation with simple cross validation.
+    
     Computes and appends the confusion matrix generated from each fold.
     At each fold, the function trains the decision tree with training data.
     Its performance is then evaluated with the test data, and appended.
 
     Args:
-        y_test (numpy.ndarray): test dataset label
-        y_predict (numpy.ndarray): predicted label
-
+        x (np.ndarray): Test dataset label
+        y (np.ndarray): Predicted label
+        k_folds (int): Number of folds
+        
     Returns:
-        results: list of length k_folds
-            - Each element is the confusion matrix corresponding to a fold. 
-        depth: list of length k_folds
-            - Each element is the confusion matrix corresponding to a fold. 
+        list, list: Two lists of length k_folds. One is for every confusion matrix from a fold and the other is
+            depth of the decision tree from each fold
     """
     indices_list = Dataset.k_fold_indices(k_folds, len(x))
 
-    # Initialise the list that will store the:
-    # (i) confusion matrix from each fold
-    results = []
-    # (ii) depth of the decision tree from each fold
-    depth = []
+    # Initialise the list that will store the: (i) confusion matrix from each fold (ii) depth of the decision tree from each fold
+    result_dt, depth = list()
 
-    # Going through each fold
+    # Iterate through each fold
     for k in indices_list:
         # Testing dataset
         test_idx = k[0]
@@ -43,27 +42,29 @@ def cross_validation(x, y, k_folds):
 
         # Training the decision tree
         k_decision_tree = DecisionTree()
-        data_tree, data_depth = k_decision_tree.train(x_train, y_train)
+        # FIXME
+        k_decision_tree.train(x_train, y_train)
 
         # Predict the label and evaluate performance
         y_predicted = k_decision_tree.predict(x_test)
         final_cm = confusion_matrix(y_test, y_predicted)
 
-        results.append(final_cm)
+        # Append to the two lists the Confusion Matrix and the Depth
+        result_dt.append(final_cm)
         depth.append(k_decision_tree.depth)
 
-    return results, depth
+    return result_dt, depth
 
 
 # Step 4 - Pruning with Nested Cross-Validation
 def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
     indices_list = Dataset.nested_k_fold_indices(outer_fold, inner_fold, len(x))
-    result_dt = []
-    depth = []
+    result_dt, depth = list()
+
     for k in indices_list:
-        test_indx = k[0]
-        x_test = x[test_indx]
-        y_test = y[test_indx]
+        test_idx = k[0]
+        x_test = x[test_idx]
+        y_test = y[test_idx]
 
         best_dt = None
         best_acc = None
