@@ -17,13 +17,15 @@ def cross_validation(x, y, k_folds):
     Its performance is then evaluated with the test data, and appended.
 
     Args:
-        x (np.ndarray): Test dataset label
-        y (np.ndarray): Predicted label
+        x (np.ndarray): Test dataset label. 
+        y (np.ndarray): Predicted label. 
         k_folds (int): Number of folds
         
     Returns:
-        list, list: Two lists of length k_folds. One is for every confusion matrix from a fold and the other is
-            depth of the decision tree from each fold
+        results: list of length = k_folds
+            - Each element is the confusion matrix corresponding to a fold. 
+        depth: list of length = k_folds
+            - Each element is the decision tree depth corresponding to a fold. 
     """
     indices_list = k_fold_indices(k_folds, len(x))
 
@@ -68,8 +70,10 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
         inner_fold (int):
 
     Returns:
-        list, list: Two lists of length k_folds. One is for every confusion matrix from a fold and the other is
-            depth of the decision tree from each fold
+        results: list of length = k_folds
+            - Each element is the confusion matrix corresponding to a fold. 
+        depth: list of length = k_folds
+            - Each element is the decision tree depth corresponding to a fold. 
     """
     indices_list = nested_k_fold_indices(outer_fold, inner_fold, len(x))
     result_dt, depth = list(),list()
@@ -152,8 +156,8 @@ def confusion_matrix(y_truth, y_prediction):
     """ Compute the confusion matrix.
         
     Args:
-        y_truth (np.ndarray): the actual data labels
-        y_prediction (np.ndarray): the predicted labels 
+        y_truth (np.ndarray): the actual data labels. shape (N,), where N is the number of datasets
+        y_prediction (np.ndarray): the predicted labels. shape (N,), where N is the number of datasets
 
     Returns:
         confusion (np.array): shape (C, C), where C is the number of classes. 
@@ -192,8 +196,8 @@ def evaluate(y_test, y_predict):
     """ Compute the accuracy given the ground truth and predictions
 
     Args:
-        y_test (numpy.ndarray): test dataset label
-        y_predict (numpy.ndarray): predicted label
+        y_test (numpy.ndarray): test dataset label. shape (N,), where N is the number of test datasets
+        y_predict (numpy.ndarray): predicted label. shape (N,), where N is the number of test datasets
 
     Returns:
         float : the accuracy
