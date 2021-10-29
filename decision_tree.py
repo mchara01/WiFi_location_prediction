@@ -220,6 +220,9 @@ class DecisionTree:
             # Return node and max depth between the two branches
             return node, max(left_depth, right_depth)
 
+    def final_depth(self):
+        return self.root_node.final_depth()
+
     def plot_tree(self, node=None, x=0, y=0, width=100.0):
         """Tree visualisation - BONUS
 

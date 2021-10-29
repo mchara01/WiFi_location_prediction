@@ -72,7 +72,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             depth of the decision tree from each fold
     """
     indices_list = nested_k_fold_indices(outer_fold, inner_fold, len(x))
-    result_dt, depth = list(),list()
+    result_dt, depth,acc_finals = list(),list(),list()
 
     for k in indices_list:
         test_idx = k[0]
@@ -92,23 +92,63 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             current_decision_tree = DecisionTree()
             current_decision_tree.train(x_train, y_train)
 
-            pruning_simulation(current_decision_tree, x_val, y_val)
+            recursive_pruning_simulation(current_decision_tree,current_decision_tree.root_node, x_val, y_val)
             y_predict = current_decision_tree.predict(x_val)
             acc = evaluate(y_val, y_predict)
 
             if best_acc is None or acc > best_acc:
-                # print("changed best acc to {}".format(acc) )
+                print("changed best acc to {}".format(acc) )
                 best_acc = acc
                 best_dt = current_decision_tree
 
         y_predicted = best_dt.predict(x_test)
 
         final_cm = confusion_matrix(y_test, y_predicted)
-        # print(final_cm)
+        print(final_cm)
+        acc_finals.append(evaluate(y_test,y_predicted))
+        print()
         result_dt.append(final_cm)  # best_dt,final_cm]
-        depth.append(best_dt.depth)
-
+        print(best_dt.final_depth())
+        depth.append(best_dt.final_depth())
+        print()
+        print()
+    print(acc_finals)
     return result_dt, depth
+
+def recursive_pruning_simulation(current_decision_tree,tree_node,x,y):
+    if tree_node.leaf:
+        return
+
+    if not tree_node.left.leaf:
+        recursive_pruning_simulation(current_decision_tree,tree_node.left,x,y)
+        if tree_node.left.leaf:
+            print("changed left")
+    if not tree_node.right.leaf:
+        recursive_pruning_simulation(current_decision_tree,tree_node.right,x,y)
+        if tree_node.right.leaf:
+            print("changed right")
+
+    if tree_node.left.leaf and tree_node.right.leaf:
+        y_predict = current_decision_tree.predict(x)
+        orig_val = evaluate(y, y_predict)
+        left_counts = tree_node.left.label_counts
+        right_counts = tree_node.right.label_counts
+        if left_counts > right_counts:
+            label = tree_node.left.label
+            label_count = tree_node.left.label_counts
+        else:
+            label = tree_node.right.label
+            label_count = tree_node.right.label_counts
+        tmp_orig_node = tree_node.clone()
+        tree_node.set_leaf(label, label_count)
+        y_predict_pruned = current_decision_tree.predict(x)
+        pruned_val = evaluate(y, y_predict_pruned)
+
+        if orig_val >= pruned_val:
+            tree_node.change_attribute(tmp_orig_node)
+            print("returned {} >= {}".format(orig_val,pruned_val))
+        else:
+            print("pruned {} < {}".format(orig_val,pruned_val))
 
 
 def pruning_simulation(current_decision_tree, x, y):
@@ -132,19 +172,22 @@ def pruning_simulation(current_decision_tree, x, y):
                 label = current_node.right.label
                 label_count = current_node.right.label_counts
             tmp_orig_node = current_node.clone()
-            # FIXME
             current_node.set_leaf(label, label_count)
             y_predict_pruned = current_decision_tree.predict(x)
             pruned_val = evaluate(y, y_predict_pruned)
 
-            if orig_val > pruned_val:
+            if orig_val >= pruned_val:
                 current_node.change_attribute(tmp_orig_node)
+                print("returned {} >= {}".format(orig_val,pruned_val))
+            else:
+                print("pruned {} < {}".format(orig_val,pruned_val))
         # If not directly connected to two leaves, append its left and right child
         else:
             if not current_node.left.leaf:
                 queue.append(current_node.left)
             if not current_node.right.leaf:
                 queue.append(current_node.right)
+    print()
 
 
 # Evaluation Metric 1: Confusion Matrix

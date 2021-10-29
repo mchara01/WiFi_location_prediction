@@ -36,6 +36,12 @@ class TreeNode:
         self.leaf = True
         self.label = label
         self.label_counts = label_counts
+    
+    def final_depth(self):
+        if self.leaf:
+            return 0 
+        else:
+            return 1 + max(self.left.final_depth(), self.right.final_depth()) 
 
     def change_attribute(self, node):
         """Copy attributes from a given node.

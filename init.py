@@ -38,91 +38,91 @@ if __name__ == "__main__":
         exit(0)
 
     # PART 2 - Plot (BONUS)
-    print("Step 2 (Bonus) - Plotting Decision Tree")
-    print("Building Clean Decision Tree...")
-    # Create Decision Tree and train it
-    clean_decision_tree = DecisionTree()
-    clean_decision_tree.train(x_noise, y_noise)
-    # Plot the Decision Tree, display it and save it
-    clean_decision_tree.plot_tree()
-    plt.xticks(np.arange(-100.0, 100.0, 1.0))
-    fig = plt.gcf()
-    fig.set_size_inches(300, 50)
-    fig.savefig('dt_bonus.png', dpi=100)
-    # plt.show()
+    # print("Step 2 (Bonus) - Plotting Decision Tree")
+    # print("Building Clean Decision Tree...")
+    # # Create Decision Tree and train it
+    # clean_decision_tree = DecisionTree()
+    # clean_decision_tree.train(x_noise, y_noise)
+    # # Plot the Decision Tree, display it and save it
+    # clean_decision_tree.plot_tree()
+    # plt.xticks(np.arange(-100.0, 100.0, 1.0))
+    # fig = plt.gcf()
+    # fig.set_size_inches(300, 50)
+    # fig.savefig('dt_bonus.png', dpi=100)
+    # # plt.show()
 
-    # PART 3 - Evaluation
-    print("Step 3 - Evaluation")
-    # 3(i): Clean Dataset
-    print("Evaluating clean dataset...")
-    # Run the cross validation and obtain the list of confusion matrices and tree depth from each fold
-    clean_confusion_matrix, clean_depth = cross_validation(x_clean, y_clean, OUTER_FOLD)
-    print("Confusion Matrix of all folds on clean dataset:")
-    print(clean_confusion_matrix)
+    # # PART 3 - Evaluation
+    # print("Step 3 - Evaluation")
+    # # 3(i): Clean Dataset
+    # print("Evaluating clean dataset...")
+    # # Run the cross validation and obtain the list of confusion matrices and tree depth from each fold
+    # clean_confusion_matrix, clean_depth = cross_validation(x_clean, y_clean, OUTER_FOLD)
+    # print("Confusion Matrix of all folds on clean dataset:")
+    # print(clean_confusion_matrix)
 
-    # The average of all the confusion matrices
-    average_clean_cm = np.average(clean_confusion_matrix, axis=0)
-    print("Average confusion matrix: ")
-    print(average_clean_cm)
+    # # The average of all the confusion matrices
+    # average_clean_cm = np.average(clean_confusion_matrix, axis=0)
+    # print("Average confusion matrix: ")
+    # print(average_clean_cm)
 
-    # Average accuracy 
-    accuracy_clean = accuracy_cm(average_clean_cm)
-    print("Accuracy on clean dataset: ", accuracy_clean)
+    # # Average accuracy 
+    # accuracy_clean = accuracy_cm(average_clean_cm)
+    # print("Accuracy on clean dataset: ", accuracy_clean)
 
-    # Recall 
-    recall_clean = recall(average_clean_cm)
-    print("Recall on clean dataset: ", recall_clean)
+    # # Recall 
+    # recall_clean = recall(average_clean_cm)
+    # print("Recall on clean dataset: ", recall_clean)
 
-    # Precision
-    precision_clean = precision(average_clean_cm)
-    print("Precision on clean dataset: ", precision_clean)
+    # # Precision
+    # precision_clean = precision(average_clean_cm)
+    # print("Precision on clean dataset: ", precision_clean)
 
-    # F1-Score
-    f1_clean = f1_score(average_clean_cm)
-    print("F1-Score on clean dataset: ", f1_clean)
+    # # F1-Score
+    # f1_clean = f1_score(average_clean_cm)
+    # print("F1-Score on clean dataset: ", f1_clean)
 
-    # Tree-Depth
-    ave_depth_clean = np.average(clean_depth)
-    print("Average tree depth on clean dataset: ", ave_depth_clean)
+    # # Tree-Depth
+    # ave_depth_clean = np.average(clean_depth)
+    # print("Average tree depth on clean dataset: ", ave_depth_clean)
 
-    print()
+    # print()
 
-    # 3(ii): Noisy Dataset
-    print("Evaluating noisy dataset...")
-    # Run the cross validation and obtain the list of confusion matrices from each fold
-    noisy_confusion_matrix, noisy_depth = cross_validation(x_noise, y_noise, OUTER_FOLD)
-    print("Confusion Matrix of all folds on noisy dataset:")
-    print(noisy_confusion_matrix)
+    # # 3(ii): Noisy Dataset
+    # print("Evaluating noisy dataset...")
+    # # Run the cross validation and obtain the list of confusion matrices from each fold
+    # noisy_confusion_matrix, noisy_depth = cross_validation(x_noise, y_noise, OUTER_FOLD)
+    # print("Confusion Matrix of all folds on noisy dataset:")
+    # print(noisy_confusion_matrix)
 
-    # The average of all the confusion matrices
-    ave_noisy_cm = np.average(noisy_confusion_matrix, axis=0)
-    print("Average confusion matrix:")
-    print(ave_noisy_cm)
+    # # The average of all the confusion matrices
+    # ave_noisy_cm = np.average(noisy_confusion_matrix, axis=0)
+    # print("Average confusion matrix:")
+    # print(ave_noisy_cm)
 
-    # Average accuracy 
-    accuracy_noise = accuracy_cm(ave_noisy_cm)
-    print("Accuracy on noisy dataset: ", accuracy_noise)
+    # # Average accuracy 
+    # accuracy_noise = accuracy_cm(ave_noisy_cm)
+    # print("Accuracy on noisy dataset: ", accuracy_noise)
 
-    # Recall 
-    recall_noise = recall(ave_noisy_cm)
-    print("Recall on noisy dataset: ", recall_noise)
+    # # Recall 
+    # recall_noise = recall(ave_noisy_cm)
+    # print("Recall on noisy dataset: ", recall_noise)
 
-    # Precision
-    precision_noise = precision(ave_noisy_cm)
-    print("Precision on noisy dataset: ", precision_noise)
+    # # Precision
+    # precision_noise = precision(ave_noisy_cm)
+    # print("Precision on noisy dataset: ", precision_noise)
 
-    # F1-Score
-    f1_noise = f1_score(ave_noisy_cm)
-    print("F1-Score on noisy dataset: ", f1_noise)
+    # # F1-Score
+    # f1_noise = f1_score(ave_noisy_cm)
+    # print("F1-Score on noisy dataset: ", f1_noise)
 
-    # Tree-Depth
-    average_depth_noisy = np.average(noisy_depth)
-    print("Average tree depth on noisy dataset: ", average_depth_noisy)
+    # # Tree-Depth
+    # average_depth_noisy = np.average(noisy_depth)
+    # print("Average tree depth on noisy dataset: ", average_depth_noisy)
     
-    print()
+    # print()
 
-    # PART 4 - Pruning (and Evaluation)
-    print("Step 4: Pruning (and Evaluation)")
+    # # PART 4 - Pruning (and Evaluation)
+    # print("Step 4: Pruning (and Evaluation)")
 
     #4(i): Clean Dataset
     print("Pruning clean dataset...")
@@ -158,37 +158,37 @@ if __name__ == "__main__":
     print("Average tree depth on clean dataset:", ave_depth_clean_pruned)
     print()
 
-    # 4(ii): Noisy Dataset
-    print("Pruning noisy dataset...")
+    # # 4(ii): Noisy Dataset
+    # print("Pruning noisy dataset...")
 
-    # Run the pruning and nested cross validation, and obtain the list of confusion matrix from each fold
-    noisy_pruned_cm, noisy_pruned_depth = pruning_nested_cross_validation(x_noise, y_noise, OUTER_FOLD, INNER_FOLD)
+    # # Run the pruning and nested cross validation, and obtain the list of confusion matrix from each fold
+    # noisy_pruned_cm, noisy_pruned_depth = pruning_nested_cross_validation(x_noise, y_noise, OUTER_FOLD, INNER_FOLD)
 
-    print("Confusion Matrix of all folds")
-    print(noisy_pruned_cm)
+    # print("Confusion Matrix of all folds")
+    # print(noisy_pruned_cm)
 
-    # The average of all the confusion matrices
-    ave_noisy_pruned_cm = np.average(noisy_pruned_cm, axis=0)
-    print("Average confusion matrix")
-    print(ave_noisy_pruned_cm)
+    # # The average of all the confusion matrices
+    # ave_noisy_pruned_cm = np.average(noisy_pruned_cm, axis=0)
+    # print("Average confusion matrix")
+    # print(ave_noisy_pruned_cm)
 
-    # Average accuracy 
-    accuracy_noisy_pruned = accuracy_cm(ave_noisy_pruned_cm)
-    print("Accuracy on noisy dataset:", accuracy_noisy_pruned)
+    # # Average accuracy 
+    # accuracy_noisy_pruned = accuracy_cm(ave_noisy_pruned_cm)
+    # print("Accuracy on noisy dataset:", accuracy_noisy_pruned)
 
-    # Recall 
-    recall_noisy_pruned = recall(ave_noisy_pruned_cm)
-    print("Recall on noisy dataset:", recall_noisy_pruned)
+    # # Recall 
+    # recall_noisy_pruned = recall(ave_noisy_pruned_cm)
+    # print("Recall on noisy dataset:", recall_noisy_pruned)
 
-    # Precision
-    precision_noisy_pruned = precision(ave_noisy_pruned_cm)
-    print("Precision on noisy dataset:", precision_noisy_pruned)
+    # # Precision
+    # precision_noisy_pruned = precision(ave_noisy_pruned_cm)
+    # print("Precision on noisy dataset:", precision_noisy_pruned)
 
-    # F1-Score
-    f1_noisy_pruned = f1_score(ave_noisy_pruned_cm)
-    print("F1-Score on noisy dataset:", f1_noisy_pruned)
+    # # F1-Score
+    # f1_noisy_pruned = f1_score(ave_noisy_pruned_cm)
+    # print("F1-Score on noisy dataset:", f1_noisy_pruned)
 
-    # Tree-Depth
-    average_depth_noisy_pruned = np.average(noisy_pruned_depth)
-    print("Average tree depth on noisy dataset:", average_depth_noisy_pruned)
-    print()
+    # # Tree-Depth
+    # average_depth_noisy_pruned = np.average(noisy_pruned_depth)
+    # print("Average tree depth on noisy dataset:", average_depth_noisy_pruned)
+    # print()
