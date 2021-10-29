@@ -55,7 +55,7 @@ if __name__ == "__main__":
     print("Step 3 - Evaluation")
     # 3(i): Clean Dataset
     print("Evaluating clean dataset...")
-    # Run the cross validation and obtain the list of confusion matrix and tree depth from each fold
+    # Run the cross validation and obtain the list of confusion matrices and tree depth from each fold
     clean_confusion_matrix, clean_depth = cross_validation(x_clean, y_clean, OUTER_FOLD)
     print("Confusion Matrix of all folds on clean dataset:")
     print(clean_confusion_matrix)

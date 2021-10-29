@@ -19,7 +19,8 @@ class DecisionTree:
     def train(self, x_train, y_train):
         """ Training of the Decision Tree.
 
-        Training of the Decision Tree using the given training features(x_train) and labels(y_train) of the dataset.
+        Training of the Decision Tree using the given training features (x_train) and
+        labels (y_train) of the dataset.
 
         Args:
             x_train (np.array): Features of the dataset
