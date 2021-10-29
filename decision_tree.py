@@ -39,69 +39,99 @@ class DecisionTree:
             x_test (np.array): An array of attributes for each dataset
         
         Returns:
-            y_predict (array): An array of labels predicted by the model for the inputted attributes.
+            np.array: An array of labels predicted by the model for the inputted attributes
         """
-        y_predict = np.zeros((len(x_test),), dtype=np.int)  # initialise y_test that will store
+        # Initialise y_predict with zeros
+        y_predict = np.zeros((len(x_test),), dtype=np.int)
 
         for i, instance in enumerate(x_test):
-
-            # start at the root node
+            # Start from the root node of the decision tree
             curr_node = self.root_node
 
-            # recursively enter the tree if it is not the leaf node
+            # Recursively traverse the tree while it is not a leaf node
             while not curr_node.leaf:
+                # Extract attribute and value from current node
                 curr_attribute = curr_node.attribute
                 curr_value = curr_node.value
-
+                # Find which is next node (from the left or right child)
                 if instance[curr_attribute] > curr_value:
                     curr_node = curr_node.left
                 else:
                     curr_node = curr_node.right
 
-            # if leaf node reached, output the label of the leaf node
+            # Once a leaf node is reached, output the label of the leaf node
             y_predict[i] = curr_node.label
 
         return y_predict
 
     def find_entropy(self, y_train):
-        """Calculates the entropy of a given label set
+        """Calculates the entropy of a given label set.
 
         Args:
-            y_train (list): List of integer label values in a given dataset
+            y_train (np.array): List of integer label values in a given dataset
 
         Returns:
-            Float: 
+            float: Entropy of a label set.
         """
+        # Find all unique classes in dataset (i.e. room numbers)
         values_list = np.unique(y_train)
-        sum_total = 0
+        entropy = 0
+        # Iterate though each room value (0-3)
         for value in values_list:
+            # Number of samples with value as their label
             total = y_train[value == y_train].shape[0]
+            # Calculate probability of the value from whole dataset
             probability = total / y_train.shape[0]
+            # Calculate log2 of probability
             log_value = np.log2(probability)
-            sum_total -= (probability * log_value)
-        return sum_total
+            # Multiply the probability with the log value and subtract it from the total entropy
+            entropy -= (probability * log_value)
+        return entropy
 
     def find_information_gain(self, entropy, y_subset_left, y_subset_right):
-        """[summary]
+        """Calculates the Information Gain.
+
+         Information Gain calculation using the entropy of the whole dataset and
+         two subsets.
 
         Args:
-            entropy ([type]): [description]
-            y_subset_left ([type]): [description]
-            y_subset_right ([type]): [description]
+            entropy (float): Entropy of whole dataset
+            y_subset_left (np.array): Left label subset
+            y_subset_right (np.array): Right label subset
 
         Returns:
-            [type]: [description]
+            float: Information gain
         """
-        # calculate left subsets and right subsets entropy 
+        # Calculate left subsets and right subsets entropy
         left_entropy = DecisionTree.find_entropy(self, y_subset_left)
         right_entropy = DecisionTree.find_entropy(self, y_subset_right)
+        # Find total number of samples in two subsets
         total_y = y_subset_left.shape[0] + y_subset_right.shape[0]
+        # Calculate Remainder
         left = (float(y_subset_left.shape[0]) / total_y) * left_entropy
         right = (float(y_subset_right.shape[0]) / total_y) * right_entropy
-        return entropy - (left + right)
+        # Calculation of the information gain
+        info_gain = entropy - (left + right)
+        return info_gain
 
     def find_split(self, x_train, y_train):
+        """Finds the optimal split for a given dataset.
+
+        Iterates through all the features and for each find the optimal splitting value
+        which will yield the optimal information gain. Then, find amongst all the features
+        which one provides the highest information gain and what is the splitting value for that.
+
+        Args:
+            x_train (np.array): Features of training set
+            y_train (np.array): Labels of training set
+
+        Returns:
+            float, float, float, float, float, float: Returns the best feature along with its best split value
+             and the left and right subsets, produced after the division based on that feature.
+        """
+        # Find entropy of dataset from label set
         entropy = DecisionTree.find_entropy(self, y_train)
+        # Variable initialisation
         current_best_feature_gain = None
         current_best_feature = None
         current_best_feature_split = None
@@ -109,6 +139,7 @@ class DecisionTree:
         best_feature_y_train_left = None
         best_feature_x_train_right = None
         best_feature_y_train_right = None
+        # Iterate through all the features
         for current_feature in range(x_train.shape[1]):
             current_best_gain = None
             current_best_value = None
@@ -116,29 +147,37 @@ class DecisionTree:
             best_y_train_left = None
             best_x_train_right = None
             best_y_train_right = None
+            # Copy/Extract the feature (column) values
             values = np.array(x_train[:, current_feature], copy=True)
+            # Indices that sort the values list
             values_sorted_idx = np.argsort(values)
+            # Iterate through all the samples for a specific feature
             for current_elem_idx in range(x_train.shape[0] - 1):
+                # Take a set of elements each time from the sorted index list
                 elem_1_idx = values_sorted_idx[current_elem_idx]
                 elem_2_idx = values_sorted_idx[current_elem_idx + 1]
-
+                # Average of the two is the split value
                 split_value = float(values[elem_2_idx] + values[elem_1_idx]) / 2
+                # Split values to left and right based on the calculated split value
                 left_split_idx = np.argwhere(values > split_value).flatten()
                 right_split_idx = np.argwhere(values <= split_value).flatten()
+                # FIXME
                 assert (left_split_idx.shape[0] + right_split_idx.shape[0] == values.shape[0])
                 x_train_left = x_train[left_split_idx]
                 y_train_left = y_train[left_split_idx]
                 x_train_right = x_train[right_split_idx]
                 y_train_right = y_train[right_split_idx]
-                gain = DecisionTree.find_information_gain(entropy, y_train_left, y_train_right)
-                if current_best_gain is None or gain > current_best_gain:
-                    current_best_gain = gain
+                # Calculate Information gained from the splitting value for this feature
+                info_gain = DecisionTree.find_information_gain(self, entropy, y_train_left, y_train_right)
+                # Check if its the fist IG calculation OR the current IG is higher than the previous best
+                if current_best_gain is None or info_gain > current_best_gain:
+                    current_best_gain = info_gain
                     current_best_value = split_value
                     best_x_train_left = x_train_left
                     best_y_train_left = y_train_left
                     best_x_train_right = x_train_right
                     best_y_train_right = y_train_right
-
+            # Same check as the previous, but on feature level
             if current_best_feature_gain is None or current_best_gain > current_best_feature_gain:
                 current_best_feature_gain = current_best_gain
                 current_best_feature = current_feature
@@ -148,50 +187,63 @@ class DecisionTree:
                 best_feature_x_train_right = best_x_train_right
                 best_feature_y_train_right = best_y_train_right
 
-        return current_best_feature, current_best_feature_split, best_feature_x_train_left, \
+        return current_best_feature, current_best_feature_split, \
+               best_feature_x_train_left, \
                best_feature_y_train_left, \
                best_feature_x_train_right, \
                best_feature_y_train_right
 
     def decision_tree_learning(self, x_train, y_train, depth):
-        """[summary]
+        """Recursive creation of Decision Trees.
+
+        Utilisation of the training dataset for creating the DecisionTree in
+        a recursive manner.
 
         Args:
-            x_train ([type]): [description]
-            y_train ([type]): [description]
-            depth ([type]): [description]
+            x_train ([type]): Features in training dataset
+            y_train (np.array): Labels in training dataset
+            depth (int): Depth of Decision tree
 
         Returns:
-            [type]: [description]
+            TreeNode, int: Returns a Node and  the maximum depth between the two branches
         """
         first_label = y_train[0]
         if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
             return TreeNode(None, None, None, None, True, first_label, y_train[0]), depth
         else:
-            # find split of the node
+            # Find split of the node
             feature, split_value, x_train_left, y_train_left, x_train_right, y_train_right = DecisionTree.find_split(
                 self, x_train, y_train)
-
-            # create node with the split 
+            # Create node with the split value as root
             node = TreeNode(feature, split_value, None, None, False, None, None)
-            # find the left branch recursively
+            # Find the left branch recursively while increasing depth
             node.left, left_depth = DecisionTree.decision_tree_learning(self, x_train_left, y_train_left, depth + 1)
-            # find the right branch recursively
+            # Find the right branch recursively while increasing depth
             node.right, right_depth = DecisionTree.decision_tree_learning(self, x_train_right, y_train_right, depth + 1)
-            # return node and max depth of the two branches 
+            # Return node and max depth between the two branches
             return node, max(left_depth, right_depth)
 
     def plot_tree(self, node=None, x=0, y=0, width=100.0):
+        """Tree visualisation - BONUS
+
+        Visualisation of the Decision Tree using recursion.
+
+        Args:
+            node ([type]):
+            x (float): X coardinates of parent node
+            y (float): Depth of Decision tree
+            width (float): Node width, used for displaying it
+        """
         depth_dist = 20
 
-        # if starting the plot, node = root node
+        # If start of plotting, make node = root node
         if node is None:
             node = self.root_node
 
-        # if it's not a leaf node
+        # If it's not a leaf node
         if not node.leaf:
-            # the node split condition to be printed on the tree
-            label_node = str(node.attribute) + '>' + str(node.value)
+            # Node's split condition to be printed on the tree
+            label_node = str(node.attribute) + ' > ' + str(node.value)
             plt.text(x, y, label_node, fontsize=8, horizontalalignment='center', verticalalignment='center',
                      bbox=dict(facecolor='white'))
 
@@ -204,16 +256,16 @@ class DecisionTree:
             xr = x + 1 + (width / 2)
             yr = y - depth_dist
 
-            # plot left side recursively
+            # Plot left side recursively
             plt.plot([x, xl], [y, yl])
             self.plot_tree(node.left, xl, yl, width / 2)
 
-            # plot right child node recursively
+            # Plot right side recursively
             plt.plot([x, xr], [y, yr])
             self.plot_tree(node.right, xr, yr, width / 2)
 
-        # if leaf node reached, end of recursion.
+        # If leaf node reached, end recursion
         if node.leaf:
-            label_node = 'leaf:' + str(node.label)
+            label_node = 'Leaf: ' + str(node.label)
             plt.text(x, y, label_node, fontsize=8, horizontalalignment='center', verticalalignment='center',
                      bbox=dict(facecolor='white'))
