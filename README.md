@@ -48,7 +48,7 @@ all data is loaded into numpay arrays and segmented into x (features) and y (lab
 
 * **Salim Al-Wahaibi** - *saa221@ic.ac.uk*
 * **Wei Jie Chua** - *xxx@ic.ac.uk*
-* **Alicia Jiayun Law** - *xxx@ic.ac.uk*
+* **Alicia Jiayun Law** - *ajl115@ic.ac.uk*
 * **Marcos-Antonios Charalambous** - *mc921@ic.ac.uk*
 
 ## License

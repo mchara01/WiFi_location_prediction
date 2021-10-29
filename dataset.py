@@ -9,7 +9,10 @@ from numpy.random import default_rng
 
 
 def visualize_k_fold():
-    """ Function prints the nested k-fold cross validation indices into terminal."""
+    """ Function prints the nested k-fold cross validation indices into terminal
+    for ease of user visualisation. Not used unless explicitly called. 
+    Current settings show the indices for 10 outer folds, 10 inner folds and 30 rows of data."""
+
     for index, outer_fold in enumerate(nested_k_fold_indices(10, 10, 30)):
         print("K:", index + 1)
         print("Test:", outer_fold[0])
@@ -116,9 +119,9 @@ def nested_k_fold_indices(n_outer_folds, n_inner_folds, n_instances):
         [[test1, [ [[train1 indices], [val1 indices]], [[train2 indices],[val2 indices]], ... ],
         [test2, [ [[train1 indices], [val1 indices]], [[train2 indices],[val2 indices]], ... ],
         ... ]
-        1. Each row represents the outer fold.
+        1. Each row represents an outer fold.
         2. 1st element in each row: test indices
-        3. 2nd element in each row: appended list indices for each of the inner folds in this layer.
+        3. 2nd element in each row: appended list of indices combination for all inner folds in this layer.
     """
     # Initialise folds list
     folds = list()
