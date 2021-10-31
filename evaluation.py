@@ -76,7 +76,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             - Each element is the decision tree depth corresponding to a fold. 
     """
     indices_list = nested_k_fold_indices(outer_fold, inner_fold, len(x))
-    result_dt, depth,acc_finals = list(),list(),list()
+    result_dt, depth, acc_finals = list(), list(), list()
 
     for k in indices_list:
         test_idx = k[0]
@@ -96,12 +96,12 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             current_decision_tree = DecisionTree()
             current_decision_tree.train(x_train, y_train)
 
-            recursive_pruning_simulation(current_decision_tree,current_decision_tree.root_node, x_val, y_val)
+            recursive_pruning_simulation(current_decision_tree, current_decision_tree.root_node, x_val, y_val)
             y_predict = current_decision_tree.predict(x_val)
             acc = evaluate(y_val, y_predict)
 
             if best_acc is None or acc > best_acc:
-                print("changed best acc to {}".format(acc) )
+                print("changed best acc to {}".format(acc))
                 best_acc = acc
                 best_dt = current_decision_tree
 
@@ -109,7 +109,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
 
         final_cm = confusion_matrix(y_test, y_predicted)
         print(final_cm)
-        acc_finals.append(evaluate(y_test,y_predicted))
+        acc_finals.append(evaluate(y_test, y_predicted))
         print()
         result_dt.append(final_cm)  # best_dt,final_cm]
         print(best_dt.final_depth())
@@ -119,14 +119,15 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
     print(acc_finals)
     return result_dt, depth
 
-def recursive_pruning_simulation(current_decision_tree,tree_node,x,y):
+
+def recursive_pruning_simulation(current_decision_tree, tree_node, x, y):
     if tree_node.leaf:
         return
 
     if not tree_node.left.leaf:
-        recursive_pruning_simulation(current_decision_tree,tree_node.left,x,y)
+        recursive_pruning_simulation(current_decision_tree, tree_node.left, x, y)
     if not tree_node.right.leaf:
-        recursive_pruning_simulation(current_decision_tree,tree_node.right,x,y)
+        recursive_pruning_simulation(current_decision_tree, tree_node.right, x, y)
 
     if tree_node.left.leaf and tree_node.right.leaf:
         y_predict = current_decision_tree.predict(x)
@@ -249,7 +250,7 @@ def precision(confusion_matrix):
     if len(precision) > 0:
         macro_precision = np.mean(precision)
 
-    return (precision, macro_precision)
+    return precision, macro_precision
 
 
 # Evaluation Metric 4: Recall
@@ -278,7 +279,7 @@ def recall(confusion_matrix):
     if len(recall) > 0:
         macro_recall = np.mean(recall)
 
-    return (recall, macro_recall)
+    return recall, macro_recall
 
 
 # Evaluation Metric 5: F1-Score
