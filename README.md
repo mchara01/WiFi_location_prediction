@@ -16,7 +16,7 @@ Run the following command to execute the code:
 This project requires Python >= 3.5 <br>
 
 ## Project Specifics
-The init.py is the project's main file. It is the module were all of the results are printed, according to the coursework sections. 
+The init.py is the project's main file. It is the module where all of the results are printed, according to the coursework sections. 
 It starts by loading both the clean and the noisy datasets from the wifi_db directory. 
 To change the datasets, just add the new datasets to the wifi_db directory and change the constant variable at the start of init.py.
 
