@@ -89,14 +89,16 @@ All data is loaded into NumPy arrays and segmented into x (features) and y (labe
 Full Decision Tree creation based on the full clean dataset to plot a Decision Tree.
 
 ### Part 3 - Perform cross-validation of the Decision Tree to evaluate the algorithm:
-Perform 10-fold cross-validation by dividing the datasets into 10-folds. At each loop, 1-fold is used for testing while the remaining 9-folds are used for training. This is repeated, with a new unused test fold selected each time. This results in 10 decision trees (1 per fold), from which we will take the average performance across all trees to evaluate the algorithm's performance. This is done for both the (i) clean dataset and (ii) noisy dataset. This process of cross-validation is beneficial as it allows the full utilisation of the data for model training.  Having a separate test set from the training set will also ensure the model is unbiased to the test data, giving the true model performance on unseen data, avoiding overfitting.
+Perform 10-fold cross-validation by dividing the datasets into 10-folds. At each loop, 1-fold is used for testing while the remaining 9-folds are used for training. This is repeated, with a new unused test fold selected each time. This results in 10 decision trees (1 per fold), from which we will take the average performance across all trees to evaluate the algorithm's performance. This is done for both the (i) clean dataset and (ii) noisy dataset. 
+<br><br>
+This process of cross-validation is beneficial as it allows the full utilisation of the data for model training.  Having a separate test set from the training set will also ensure the model is unbiased to the test data, giving the true model performance on unseen data, avoiding overfitting.
 
 ### Part 4 - Perform nested cross-validation to tune the pruning of a decision tree and evaluate the algorithm:
-Performing nested 10-fold cross-validation to tune a tree built on the training folds and validated for pruning using the validation fold. This involves 2 nested loops. In the outer loop, the dataset is split into 10-folds. In each pass of the outer loop, 1-outer-fold is selected, differing each time, to be used as the test dataset, while the remaining 9-outer-folds are used for training and validation. 
-<br>
+Perform a nested 10-fold cross-validation to tune a tree built on training folds and validated for pruning using a validation fold. This involves 2 nested loops. In the outer loop, the dataset is split into 10-folds. In each pass of the outer loop, 1-outer-fold is selected, differing each time, to be used as the test dataset, while the remaining 9-outer-folds are used for training and validation. 
+<br><br>
 In the inner loop, these remaining testing and validation datasets are again split into 10-folds. In each pass of the inner loop, 1-inner-fold is selected each time to be used as the validation dataset, while the remaining 9-inner-folds are used for training. Each time, a decision tree is trained using the training folds. Pruning simulation is then conducted on the tree and its performance on the validation set is used to evaluate if the pruning should take place. 
-<br>
-While 10 trees (1 per inner fold) are generated, only the best tree is selected amongst those from the inner fold. These trees are evaluated based on their respective test folds to estimate the error on unseen (unbiased) data. Similar to Part 3, ss there will be 10 best trees (1 per outer fold), the evaluation metrics here takes the average performance across these 10 trees to evaluate the algorithm's performance. This is done for both the (i) clean dataset and (ii) noisy dataset.
+<br><br>
+While 10 trees (1 per inner fold) are generated, only the best tree is selected amongst those from the inner fold. These trees are evaluated based on their respective test folds to estimate the error on unseen (unbiased) data. Similar to Part 3, as there will be 10 best trees (1 per outer fold), the evaluation metrics here takes the average performance across these 10 trees to evaluate the algorithm's performance. This is done for both the (i) clean dataset and (ii) noisy dataset.
 
 ## Authors
 
