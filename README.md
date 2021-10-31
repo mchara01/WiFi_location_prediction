@@ -21,7 +21,7 @@ It starts by loading both the clean and the noisy datasets from the wifi_db dire
 To change the datasets, just add the new datasets to the wifi_db directory and change the constant variable at the start of init.py.
 
 Once the script is executed, it will develop a Decision Tree, based on the full clean dataset, which will then plot using recursion. <br>
-The first section of evaluation, will evaluate the algorithm via a 10-fold cross-validation. Decision Trees will be trained on 9-folds of training data and tested on 1-fold of test data, and this processes is repeated 10 times, each time with a differing test dataset. This separation is beneficial as it allows the full utilisation of the data for model training.  Having a separate test set from the training set will also ensure the model is unbiased to the test data, giving the true model performance on unseen data, avoiding overfitting. <br>
+The first section of evaluation, will evaluate the algorithm via a 10-fold cross-validation. <br>
 The second part of the script will perform nested 10-fold cross-validation to tune and evaluate pruned versions of the trees.
 
 ## Report
@@ -89,7 +89,7 @@ All data is loaded into NumPy arrays and segmented into x (features) and y (labe
 Full Decision Tree creation based on the full clean dataset to plot a Decision Tree.
 
 ### Part 3 - Perform cross-validation of the Decision Tree to evaluate the algorithm:
-Perform 10-fold cross-validation by dividing the datasets into 10-folds. At each loop, 1-fold is used for testing while the remaining 9-folds are used for training. This is repeated, with a new unused test fold selected each time. This results in 10 decision trees (1 per fold), from which we will take the average performance across all trees to evaluate the algorithm's performance. This is done for both the (i) clean dataset and (ii) noisy dataset.
+Perform 10-fold cross-validation by dividing the datasets into 10-folds. At each loop, 1-fold is used for testing while the remaining 9-folds are used for training. This is repeated, with a new unused test fold selected each time. This results in 10 decision trees (1 per fold), from which we will take the average performance across all trees to evaluate the algorithm's performance. This is done for both the (i) clean dataset and (ii) noisy dataset. This process of cross-validation is beneficial as it allows the full utilisation of the data for model training.  Having a separate test set from the training set will also ensure the model is unbiased to the test data, giving the true model performance on unseen data, avoiding overfitting.
 
 ### Part 4 - Perform nested cross-validation to tune the pruning of a decision tree and evaluate the algorithm:
 Performing nested 10-fold cross-validation to tune a tree built on the training folds and validated for pruning using the validation fold. This involves 2 nested loops. In the outer loop, the dataset is split into 10-folds. In each pass of the outer loop, 1-outer-fold is selected, differing each time, to be used as the test dataset, while the remaining 9-outer-folds are used for training and validation. 
