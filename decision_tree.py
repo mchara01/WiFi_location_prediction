@@ -206,7 +206,7 @@ class DecisionTree:
         """
         first_label = y_train[0]
         if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
-            return TreeNode(None, None, None, None, True, first_label, y_train[0]), depth
+            return TreeNode(None, None, None, None, True, first_label, y_train.shape[0]), depth
         else:
             # Find split of the node
             feature, split_value, x_train_left, y_train_left, x_train_right, y_train_right = DecisionTree.find_split(
@@ -229,7 +229,7 @@ class DecisionTree:
         Visualisation of the Decision Tree using recursion.
 
         Args:
-            node ([type]):
+            node (object):
             x (float): X coardinates of parent node
             y (float): Depth of Decision tree
             width (float): Node width, used for displaying it
@@ -244,13 +244,12 @@ class DecisionTree:
         if not node.leaf:
             # Node's split condition to be printed on the tree
             label_node = str(node.attribute) + ' > ' + str(node.value)
-            plt.text(x, y, label_node, fontsize=8, horizontalalignment='center', verticalalignment='center',
-                     bbox=dict(facecolor='white'))
 
-            # x, y: parent coordinates; xl, yl: left node coordinates; xr, yr: right node coordinates
+            # Text formatting
             plt.text(x, y, label_node, horizontalalignment='center', verticalalignment='center',
                      bbox=dict(facecolor='white'), fontsize="xx-large", fontweight=500)
 
+            # x, y: parent coordinates; xl, yl: left node coordinates; xr, yr: right node coordinates
             xl = x - (width / 2)
             yl = y - depth_dist
             xr = x + 1 + (width / 2)
