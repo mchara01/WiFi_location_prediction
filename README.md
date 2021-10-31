@@ -1,7 +1,10 @@
 # WiFi_location_prediction
 building a decision tree model to predict in which of the 4 rooms the user is standing.
 the prediction is based on two datasets found in WIFI_db folder *clean_dataset.txt* and *noisy_dataset.txt*
-
+## run the code
+the init.py file is the starting point that will print out all of the results based on the coursework sections, the init.py loads both the clean and the noisy datasets from wifi_db file. to change the datasets, add the needed datasetss to the wifi_db file and change the constant varibale in the init.py script. the script will create a clean tree based on the full clean datatset to plot out the tree, then the first section will evaluate the algorithm via cross validation by creating trees based on the training folds and test it via the testing fold, the separtion is made to make sure the model is unbaised to the test data and gives the true evaluation from the destribution of the unseen data. then the secound part of the script will perform nested cross-validation to tune and evaluate a pruned version of the tree.
+## the report
+the report will show all of the evaluated statistics done on the unpruned and pruned tree via cross validationa and nested validation respectively. furthermore, the report will elaborate more on the full clean dataset tree and closeup of the upper part of it.
 ## code segmentation:
 the code contains:
 1. decision_tree class:
@@ -40,9 +43,14 @@ the code contains:
 ### part 1 loading the data:
 all data is loaded into numpay arrays and segmented into x (features) and y (labels) and classes (maping between the real labels and converted labels for convience in usage)
 
-### part 2 Creating Decision Trees:
+### part 2 Creating Decision Tree based on the full clean dataset for ploting:
+a full have been created based on the full clean dataset to plot a Decision Tree.
 
-### part 3
+### part 3 perform cross validation of the Decision Tree to evaluate the algorithm 
+perform cross validation by dividing the datasets into folds and then choose 1 fold for testing and the rest for training to evalaute the tree, then we loop through choosing other folds and keeping the rest as training to build a fresh tree, this would resuls
+
+### part 4 perform nested cross validation to tune the pruning of a decsion tree and evaluate the algorithm
+perfroming nestsed cross validation to tune a tree built on the training folds and validated for pruning using the validation fold, and after the validationa nd choosing the best from the inner fold a evalaution based on the testing fold is done to estimate the error based on unseen (unbaised) data
 
 ## Authors
 
