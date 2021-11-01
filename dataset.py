@@ -107,7 +107,8 @@ def k_fold_indices(n_folds, n_instances):
 def nested_k_fold_indices(n_outer_folds, n_inner_folds, n_instances):
     """ Used for Step 4 - Pruning, for nested cross-validation.
 
-    Generates nested n_folds possible combinations of indices for training, testing, and validation.
+    Generates nested n_folds possible combinations of indices for training,
+    testing, and validation.
     
     Args:
         n_outer_folds (int): Number of outer folds

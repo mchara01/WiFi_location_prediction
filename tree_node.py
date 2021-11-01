@@ -6,7 +6,7 @@ The TreeNode object implementation.
 class TreeNode:
 
     def __init__(self, attribute, value, left, right, leaf, label, label_counts):
-        """Initialisation of TreeNode object parameters"""
+        """Initialisation of TreeNode object parameters."""
         self.attribute = attribute
         self.value = value
         self.left = left
@@ -23,8 +23,8 @@ class TreeNode:
         the label_counts
     
          Args:
-            label ([type]): [description]
-            label_counts ([type]): [description]
+            label (str): [description]
+            label_counts (float): [description]
     
         Returns:
             [type]: [description]
@@ -38,6 +38,7 @@ class TreeNode:
         self.label_counts = label_counts
     
     def final_depth(self):
+        """Calculate depth of a node."""
         if self.leaf:
             return 0 
         else:
@@ -47,7 +48,7 @@ class TreeNode:
         """Copy attributes from a given node.
 
         Args:
-            node (TreeNode): The node from which the calling node will copy the parameters from
+            node (TreeNode): The node from which the calling node will copy the parameters from.
         """
         self.attribute = node.attribute
         self.value = node.value
