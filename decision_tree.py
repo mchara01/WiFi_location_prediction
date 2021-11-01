@@ -14,7 +14,6 @@ class DecisionTree:
     def __init__(self):
         """Initialisation of DecisionTree class object parameters."""
         self.root_node = None
-        self.depth = None
 
     def train(self, x_train, y_train):
         """ Training of the Decision Tree.
@@ -27,7 +26,7 @@ class DecisionTree:
             y_train (np.array): Labels of the dataset
         """
         # Train recursively the DecisionTree object
-        self.root_node, self.depth = DecisionTree.decision_tree_learning(self, x_train, y_train, 0)
+        self.root_node = DecisionTree.decision_tree_learning(self, x_train, y_train)
 
     def predict(self, x_test):
         """Function takes a set of attributes and predicts their corresponding labels.
@@ -190,23 +189,23 @@ class DecisionTree:
             best_feature_x_train_right, \
             best_feature_y_train_right
 
-    def decision_tree_learning(self, x_train, y_train, depth):
+    def decision_tree_learning(self, x_train, y_train):
         """Recursive creation of Decision Trees.
 
         Utilisation of the training dataset for creating the DecisionTree in
         a recursive manner.
 
         Args:
-            x_train ([type]): Features in training dataset
+            x_train (np.array): Features in training dataset
             y_train (np.array): Labels in training dataset
             depth (int): Depth of Decision tree
 
         Returns:
-            TreeNode, int: Returns a Node and  the maximum depth between the two branches
+            TreeNode, int: Returns a Node and the maximum depth between the two branches
         """
         first_label = y_train[0]
         if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
-            return TreeNode(None, None, None, None, True, first_label, y_train.shape[0]), depth
+            return TreeNode(None, None, None, None, True, first_label, y_train.shape[0])
         else:
             # Find split of the node
             feature, split_value, x_train_left, y_train_left, x_train_right, y_train_right = DecisionTree.find_split(
@@ -214,13 +213,14 @@ class DecisionTree:
             # Create node with the split value as root
             node = TreeNode(feature, split_value, None, None, False, None, None)
             # Find the left branch recursively while increasing depth
-            node.left, left_depth = DecisionTree.decision_tree_learning(self, x_train_left, y_train_left, depth + 1)
+            node.left = DecisionTree.decision_tree_learning(self, x_train_left, y_train_left)
             # Find the right branch recursively while increasing depth
-            node.right, right_depth = DecisionTree.decision_tree_learning(self, x_train_right, y_train_right, depth + 1)
+            node.right = DecisionTree.decision_tree_learning(self, x_train_right, y_train_right)
             # Return node and max depth between the two branches
-            return node, max(left_depth, right_depth)
+            return node
 
     def final_depth(self):
+
         return self.root_node.final_depth()
 
     def plot_tree(self, node=None, x=0, y=0, width=100.0):
@@ -229,7 +229,7 @@ class DecisionTree:
         Visualisation of the Decision Tree using recursion.
 
         Args:
-            node (object):
+            node (TreeNode): The node to plot. When not specified, value defaults to None.
             x (float): X coardinates of parent node
             y (float): Depth of Decision tree
             width (float): Node width, used for displaying it

@@ -43,13 +43,14 @@ if __name__ == "__main__":
     # Create Decision Tree and train it
     clean_decision_tree = DecisionTree()
     clean_decision_tree.train(x_noise, y_noise)
-    # Plot the Decision Tree, display it and save it
+    # Plot the Decision Tree 
     clean_decision_tree.plot_tree()
     plt.xticks(np.arange(-100.0, 100.0, 1.0))
     fig = plt.gcf()
     fig.set_size_inches(300, 50)
+    # Save it as an image with file name: dt_bonus.png (found in folder)
     fig.savefig('dt_bonus.png', dpi=100)
-    # plt.show()
+    # plt.show() # uncomment this to show as a plot on Python
 
     # PART 3 - Evaluation
     print("Step 3 - Evaluation")
@@ -126,11 +127,9 @@ if __name__ == "__main__":
 
     #4(i): Clean Dataset
     print("Pruning clean dataset...")
-    # Run the pruning and nested cross validation, and obtain the list of tree depth and confusion matrix from each fold
+    # Run the pruning and nested cross validation.
+    # This also prints the confusion matrix and depth from each fold.
     clean_pruned_cm, clean_pruned_depth = pruning_nested_cross_validation(x_clean, y_clean, OUTER_FOLD, INNER_FOLD)
-
-    print("Confusion Matrix of all folds")
-    print(clean_pruned_cm)
 
     # The average of all the confusion matrices
     ave_clean_pruned_cm = np.average(clean_pruned_cm, axis=0)
@@ -161,11 +160,9 @@ if __name__ == "__main__":
     # 4(ii): Noisy Dataset
     print("Pruning noisy dataset...")
 
-    # Run the pruning and nested cross validation, and obtain the list of confusion matrix from each fold
+    # Run the pruning and nested cross validation.
+    # This also prints the confusion matrix and depth from each fold.
     noisy_pruned_cm, noisy_pruned_depth = pruning_nested_cross_validation(x_noise, y_noise, OUTER_FOLD, INNER_FOLD)
-
-    print("Confusion Matrix of all folds")
-    print(noisy_pruned_cm)
 
     # The average of all the confusion matrices
     ave_noisy_pruned_cm = np.average(noisy_pruned_cm, axis=0)

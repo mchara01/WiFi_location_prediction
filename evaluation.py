@@ -54,7 +54,7 @@ def cross_validation(x, y, k_folds):
 
         # Append to the two lists the Confusion Matrix and the Depth
         result_dt.append(final_cm)
-        depth.append(k_decision_tree.depth)
+        depth.append(k_decision_tree.final_depth())
 
     return result_dt, depth
 
@@ -69,7 +69,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
         inner_fold (int): Number of inner folds during cross-validation.
 
     Returns:
-        list: list of length = k_folds
+        result_dt: list of length = k_folds
             - Each element is the confusion matrix corresponding to a fold. 
         depth: list of length = k_folds
             - Each element is the decision tree depth corresponding to a fold. 
@@ -77,6 +77,7 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
     # Generates nested k-folds possible combinations of indices for training, testing, and validation
     indices_list = nested_k_fold_indices(outer_fold, inner_fold, len(x))
     result_dt, depth, acc_finals = list(), list(), list()
+    counter = 1 # outer fold counter used for printing
     # Iterate through the indices
     for k in indices_list:
         # Testing fold
@@ -105,7 +106,6 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             acc = evaluate(y_val, y_predict)
             # Check if its the first time we check or it has the best accuracy up to now
             if best_acc is None or acc > best_acc:
-                print("Changed best acc to {}".format(acc))
                 # New best accuracy and DTree
                 best_acc = acc
                 best_dt = current_decision_tree
@@ -113,18 +113,16 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
         y_predicted = best_dt.predict(x_test)
         # Calculate Confusion Matrix
         final_cm = confusion_matrix(y_test, y_predicted)
+        print('Confusion Matrix and Depth from Fold ', counter)
         print(final_cm)
+        counter+=1
         # Calculate accuracy and append to list
         acc_finals.append(evaluate(y_test, y_predicted))
-        print()
         # Append its confusion matrix
         result_dt.append(final_cm)
         print(best_dt.final_depth())
         # Append its depth after pruning
         depth.append(best_dt.final_depth())
-        print()
-        print()
-    print(acc_finals)
 
     return result_dt, depth
 
