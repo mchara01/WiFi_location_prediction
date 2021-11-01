@@ -80,6 +80,9 @@ Our project's codebase consists of:
       3. Step 3: Evaluate based on cross-validation of each dataset by creating the tree training on the training dataset fold and predicting the test fold from the 10 folds and return their confusion matrices and then compute the *recall*, *precision*, and *f1-score* of the averaged confusion matrix for each dataset.
       4. Step 4: Apply pruning simulation in nested cross-validation of 10 outer folds, 10 inner folds and return the confusion matrices of the outer folds, which are evaluated on the unused test folds for each iteration.
 
+6. final_result.txt
+    7.  The output of the results in the report.
+
 ## Coursework parts
 
 ### Part 1 - Loading the data:
