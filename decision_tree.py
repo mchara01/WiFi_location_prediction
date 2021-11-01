@@ -197,10 +197,9 @@ class DecisionTree:
         Args:
             x_train (np.array): Features in training dataset
             y_train (np.array): Labels in training dataset
-            depth (int): Depth of Decision tree
 
         Returns:
-            TreeNode, int: Returns a Node and the maximum depth between the two branches
+            node (TreeNode): Returns a Node 
         """
         first_label = y_train[0]
         if y_train[y_train == first_label].shape[0] == y_train.shape[0]:
