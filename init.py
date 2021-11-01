@@ -42,7 +42,7 @@ if __name__ == "__main__":
     print("Building Clean Decision Tree...")
     # Create Decision Tree and train it
     clean_decision_tree = DecisionTree()
-    clean_decision_tree.train(x_noise, y_noise)
+    clean_decision_tree.train(x_clean, y_clean)
     # Plot the Decision Tree 
     clean_decision_tree.plot_tree()
     plt.xticks(np.arange(-100.0, 100.0, 1.0))
