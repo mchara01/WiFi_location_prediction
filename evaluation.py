@@ -329,7 +329,7 @@ def f1_score(confusion_matrix):
 
     Returns:
         tuple: returns a tuple (f1s, macro_f1) where:
-        - f1s: a np.ndarray of shape (C,), where each element is the f1-score for class c
+        - f: a np.ndarray of shape (C,), where each element is the f1-score for class c
         - macro-f1: a float of the macro-averaged f1-score 
     """
 
