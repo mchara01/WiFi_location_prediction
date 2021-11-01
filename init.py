@@ -123,7 +123,7 @@ if __name__ == "__main__":
     print()
 
     # PART 4 - Pruning (and Evaluation)
-    print("Step 4: Pruning (and Evaluation)")
+    print("Step 4 - Pruning (and Evaluation)")
 
     #4(i): Clean Dataset
     print("Pruning clean dataset...")
