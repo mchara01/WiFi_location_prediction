@@ -23,11 +23,11 @@ class TreeNode:
         the label_counts
     
          Args:
-            label (str): [description]
-            label_counts (float): [description]
+            label (str): the new label of the node
+            label_counts (float): number of the elments in this node that has the same label (used for majority voting in pruning)
     
         Returns:
-            [type]: [description]
+            None
         """
         self.attribute = None
         self.value = None
