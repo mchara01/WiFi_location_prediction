@@ -70,14 +70,15 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
 
     Returns:
         result_dt: list of length = k_folds
-            - Each element is the confusion matrix corresponding to a fold. 
+            - Each element is the average confusion matrix corresponding to a fold. 
         depth: list of length = k_folds
-            - Each element is the decision tree depth corresponding to a fold. 
+            - Each element is the average decision tree depth corresponding to a fold. 
     """
     # Generates nested k-folds possible combinations of indices for training, testing, and validation
     indices_list = nested_k_fold_indices(outer_fold, inner_fold, len(x))
-    result_dt, depth, acc_finals = list(), list(), list()
+    result_dt, depth = list(), list()
     counter = 1 # outer fold counter used for printing
+    
     # Iterate through the indices
     for k in indices_list:
         # Testing fold
@@ -85,8 +86,9 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
         x_test = x[test_idx]
         y_test = y[test_idx]
         # Initialise best DecisionTree and its accuracy
-        best_dt = None
-        best_acc = None
+        class_labels = np.unique(y)
+        inner_confusion_matrix = np.zeros((len(class_labels), len(class_labels)), dtype=np.int)
+        avg_depth = 0
         for j in k[1]:  # k[1]: [ [[train1 indices],[val1 indices]] , [[train2 indices],[val2 indices]] ...]
             # Extract train and validation indices
             train_indices = j[0]
@@ -100,29 +102,24 @@ def pruning_nested_cross_validation(x, y, outer_fold, inner_fold):
             current_decision_tree.train(x_train, y_train)
             # Recursively prune the DTree
             recursive_pruning_simulation(current_decision_tree, current_decision_tree.root_node, x_val, y_val)
-            # Make predictions on the pruned DTree
-            y_predict = current_decision_tree.predict(x_val)
-            # Calculate its accuracy
-            acc = evaluate(y_val, y_predict)
-            # Check if its the first time we check or it has the best accuracy up to now
-            if best_acc is None or acc > best_acc:
-                # New best accuracy and DTree
-                best_acc = acc
-                best_dt = current_decision_tree
-        # Make predictions on test features using the most accurate DTree created above
-        y_predicted = best_dt.predict(x_test)
-        # Calculate Confusion Matrix
-        final_cm = confusion_matrix(y_test, y_predicted)
-        print('Confusion Matrix and Depth from Fold ', counter)
-        print(final_cm)
+            # (i) Sum confusion matrix across all inner folds
+            y_predict = current_decision_tree.predict(x_test)
+
+            inner_confusion_matrix = inner_confusion_matrix+confusion_matrix(y_test, y_predict)
+            # (ii) Sum depth across all inner folds
+            avg_depth += current_decision_tree.final_depth()
+        # Divide confusion matrix sum by no. of inner folds to obtain average for this outer fold
+        inner_confusion_matrix = np.divide(inner_confusion_matrix,inner_fold)
+        # Divide depth sum by no. of inner folds to obtain average for this outer fold
+        avg_depth /= inner_fold
+        print('Average Confusion Matrix and Depth from Fold ', counter)
+        print(inner_confusion_matrix)
+        print(avg_depth)
         counter+=1
-        # Calculate accuracy and append to list
-        acc_finals.append(evaluate(y_test, y_predicted))
-        # Append its confusion matrix
-        result_dt.append(final_cm)
-        print(best_dt.final_depth())
-        # Append its depth after pruning
-        depth.append(best_dt.final_depth())
+        # Append average confusion matrix
+        result_dt.append(inner_confusion_matrix)
+        # Append average depth after pruning
+        depth.append(avg_depth)
 
     return result_dt, depth
 

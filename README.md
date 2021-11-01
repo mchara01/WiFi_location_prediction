@@ -22,7 +22,7 @@ To change the datasets, just add the new datasets to the wifi_db directory and c
 
 Once the script is executed, it will develop a Decision Tree, based on the full clean dataset, which will then plot using recursion. <br>
 The first section of evaluation, will evaluate the algorithm via a 10-fold cross-validation. <br>
-The second part of the script will perform nested 10-fold cross-validation to tune and evaluate pruned versions of the trees.
+The second part of the script will perform nested 10-fold cross-validation to evaluate pruned versions of the trees.
 
 ## Report
 The report thoroughly describes all of the evaluation metrics done on the un-pruned and pruned tree via cross-validation and nested cross-validation respectively. 
@@ -59,7 +59,7 @@ Our project's codebase consists of:
    
 3. evaluation.py:
    1. Apply cross-validation on a given dataset and return the confusion matrix of the results.
-   2. Find the best pruning tree via nested cross-validation and return the confusion matrix of the results.
+   2. Apply nested cross-validation on to evaluate the  tree via nested cross-validation and return the confusion matrix of the results.
    3. Pruning simulation method to simulate the pruning given a validation dataset.
    4. Finding the confusion matrix between labels-predicted and real labels.
    5. Finding Accuracy using a confusion matrix.
@@ -94,14 +94,14 @@ Full Decision Tree creation based on the full clean dataset to plot a Decision T
 ### Part 3 - Perform cross-validation of the Decision Tree to evaluate the algorithm:
 Perform 10-fold cross-validation by dividing the datasets into 10-folds. At each loop, 1-fold is used for testing while the remaining 9-folds are used for training. This is repeated, with a new unused test fold selected each time. This results in 10 decision trees (1 per fold), from which we will take the average performance across all trees to evaluate the algorithm's performance. This is done for both the (i) clean dataset and (ii) noisy dataset. 
 <br><br>
-This process of cross-validation is beneficial as it allows the full utilisation of the data for model training.  Having a separate test set from the training set will also ensure the model is unbiased to the test data, giving the true model performance on unseen data, avoiding overfitting.
+This process of cross-validation is beneficial as it allows the full utilization of the data for model training.  Having a separate test set from the training set will also ensure the model is unbiased to the test data, giving the true model performance on unseen data, avoiding overfitting.
 
 ### Part 4 - Perform nested cross-validation to tune the pruning of a decision tree and evaluate the algorithm:
 Perform a nested 10-fold cross-validation to tune a tree built on training folds and validated for pruning using a validation fold. This involves 2 nested loops. In the outer loop, the dataset is split into 10-folds. In each pass of the outer loop, 1-outer-fold is selected, differing each time, to be used as the test dataset, while the remaining 9-outer-folds are used for training and validation. 
 <br><br>
-In the inner loop, these remaining testing and validation datasets are again split into 10-folds. In each pass of the inner loop, 1-inner-fold is selected each time to be used as the validation dataset, while the remaining 9-inner-folds are used for training. Each time, a decision tree is trained using the training folds. Pruning simulation is then conducted on the tree and its performance on the validation set is used to evaluate if the pruning should take place. 
+In the inner loop, these remaining testing and validation datasets are again split into 10-folds. In each pass of the inner loop, 1-inner-fold is selected each time to be used as the validation dataset, while the remaining 9-inner-folds are used for training. Each time, a decision tree is trained using the training folds. Pruning simulation is then conducted on the tree and its performance on the validation set is used to evaluate if the pruning should take place. Once a pruned tree is obtained, the test set is applied to obtain performance on unseen data.
 <br><br>
-While 10 trees (1 per inner fold) are generated, only the best tree is selected amongst those from the inner fold. These trees are evaluated based on their respective test folds to estimate the error on unseen (unbiased) data. Similar to Part 3, as there will be 10 best trees (1 per outer fold), the evaluation metrics here takes the average performance across these 10 trees to evaluate the algorithm's performance. This is done for both the (i) clean dataset and (ii) noisy dataset.
+Upon the completion of each outer fold loop, the average of all inner folds are obtained. Once all outer loops are completed, the average across all outer folds is taken. This is taken as the performance of the algorithm and is done for both the (i) clean dataset and (ii) noisy dataset.
 
 ## Authors
 
