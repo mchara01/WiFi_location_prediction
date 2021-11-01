@@ -158,7 +158,6 @@ class DecisionTree:
                 # Split values to left and right based on the calculated split value
                 left_split_idx = np.argwhere(values > split_value).flatten()
                 right_split_idx = np.argwhere(values <= split_value).flatten()
-                # FIXME
                 assert (left_split_idx.shape[0] + right_split_idx.shape[0] == values.shape[0])
                 x_train_left = x_train[left_split_idx]
                 y_train_left = y_train[left_split_idx]
@@ -221,6 +220,12 @@ class DecisionTree:
             return node, max(left_depth, right_depth)
 
     def final_depth(self):
+        '''final depth of the tree
+        compute the depth of the tree from the root node
+        
+        returns:
+         depth (int): the depth of the tree from the root node
+        '''
         return self.root_node.final_depth()
 
     def plot_tree(self, node=None, x=0, y=0, width=100.0):
